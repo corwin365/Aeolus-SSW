@@ -18,23 +18,29 @@ clearvars -except Topo Map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %data selection
-Settings.InFile = 'aeolus_data_3d.mat';
-Settings.TimeRange = datenum(2021,1,[-6:1:5]); %plot data will be averaged over this range
+Settings.InFile = 'aeolus_data_3d_2021.mat';
+Settings.TimeRange = datenum(2021,1,[-10:2:30]); %plot data will be averaged over this range
+% % Settings.InFile = 'aeolus_data_3d_1920.mat';
+% % Settings.TimeRange = datenum(2020,1,[-10:2:30]); %plot data will be averaged over this range
+
 
 %data regridding - km from pole
 Settings.XGrid = -6000:50:6000;
 Settings.YGrid = -6000:50:6000;
 Settings.ZGrid = 5:0.5:25;
 
+%colour limit
+Settings.ColourLimit = 10;
+
 %data smoothing
-Settings.SmoothSize = [9,9,3];
+Settings.SmoothSize = [15,15,1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% make plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clf
 set(gcf,'color','w')
-subplot = @(m,n,p) subtightplot (m, n, p, [0.01,0.01],  0.05, 0.05);
+subplot = @(m,n,p) subtightplot (m, n, p, [0.04,0.01],  [0.10,0.03], 0.03);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% map prep
@@ -42,13 +48,13 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.01,0.01],  0.05, 0.05);
 
 %load data
 [Topo,Map] = topo_etc([-179.9,179.9],[-89.9,89.9],0,0,1,0);
-Topo.elev = smoothn(Topo.elev,[9,9]);
-% Topo.elev = Topo.elev./3; %to make it easier to see what's happening
-% Topo.elev(:) = 0; %make it flat
+% Topo.elev = smoothn(Topo.elev,[5,5]);
+
 
 
 %convert coordinate frames
-[xi,yi] = meshgrid(-6000:20:6000,-6000:20:6000);
+[xi,yi] = meshgrid(-6000:10:6000,-6000:10:6000);
+% % [xi,yi] = meshgrid(-6000:50:6000,-6000:50:6000);
 ri = quadadd(xi,yi);
 th = atan2d(xi,yi);
 [lat,lon] = reckon(89.999,0,km2deg(ri),th); %exactly 90 causes issues
@@ -74,7 +80,7 @@ mapxi = xi; mapyi = yi; clear xi yi
 
 for iDay=1:1:numel(Settings.TimeRange)
   
-  subplot(2,ceil(numel(Settings.TimeRange))./2,iDay)
+  subplot(3,ceil(numel(Settings.TimeRange))./3,iDay)
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% load data, extract and overinterpolate onto a space grid
@@ -83,9 +89,14 @@ for iDay=1:1:numel(Settings.TimeRange)
   %load data
   Data = load(Settings.InFile);
   
-  %select and average over time period
+  %select time period 
   InTimeRange = find(Data.Settings.TimeScale >= Settings.TimeRange(iDay)-1 ...
                    & Data.Settings.TimeScale <= Settings.TimeRange(iDay)+1);
+                 
+  %special case - one day where coverage leaves large gaps in plot - add a single day to provide sufficient coverage
+  if Settings.TimeRange(iDay) == datenum(2020,1,12); InTimeRange = [InTimeRange,max(InTimeRange)+1]; end
+           
+  %average over time period
   U = squeeze(nanmean(Data.Results.U(InTimeRange,:,:,:),1));
   clear InTimeRange
   
@@ -121,7 +132,7 @@ for iDay=1:1:numel(Settings.TimeRange)
   
   
   %remove low latitudes, where data don't go as high
-  Ui(lat <62) = 0;
+  Ui(lat <60) = 0;
   
   clear U I lat lon z ri th
   
@@ -151,10 +162,10 @@ for iDay=1:1:numel(Settings.TimeRange)
   
   for PM=[-1,1]
     
-    Levels = PM.*5;%[5];%,10,15];
+    Levels = PM.*Settings.ColourLimit;%[5];%,10,15];
     
 %     if PM == 1;  Alpha = [0.3,0.3,0.3]; else Alpha = [0.6,0.6,0.6]; end
-    Alpha = 0.77;% [0.9];%
+    Alpha = 1;%0.77;% [0.9];%
     
     for iLev=1:1:numel(Levels);
       fv = isosurface(x,y,z,Ui,Levels(iLev));
@@ -182,17 +193,32 @@ for iDay=1:1:numel(Settings.TimeRange)
   %set terrain to not reflect light specularly
   set(hMap,'DiffuseStrength',0.5,'SpecularStrength',0)
   
-  axis([-4500 4500 -4500 4500 -0.1 max(Settings.ZGrid)])
+  axis([-4600 4600 -4600 4600 -0.1 max(Settings.ZGrid)])
   axis off; grid off; box off
-  axis square
-
-  %circle
-  hold on
-%   for Level=0.5%:5:30;
-    r = 4550; th=-180:1:180; plot3(r.*cosd(th),r.*sind(th),ones(size(th)).*0.0,'-','color',[1,1,1].*0)
-    r = 3335; th=-180:1:180; plot3(r.*cosd(th),r.*sind(th),ones(size(th)).*0.5,'-','color',[1,1,1].*0.3)    
-%   end
+  axis square;  hold on
   
+  %pole
+  plot3([0,0],[90,90],[0,50],'-','color',[1,1,1].*0,'clipping','off')
+
+  %barrel holding data, plus outer circle
+
+  r2 = 4550; 
+  r1 = 3335;
+  
+  %outer circle
+  th=-180:1:180; plot3(r2.*cosd(th),r2.*sind(th),ones(size(th)).*0.0,'-','color',[1,1,1].*0)
+  
+  %data latitude limit at low altitude, to show map extends beyond it
+  th=-180:1:180; plot3(r1.*cosd(th),r1.*sind(th),ones(size(th)).*0.5,'-','color',[1,1,1].*0.2)
+  
+% %   %barrel holding data
+% %   th=-180:1:180; plot3(r1.*cosd(th),r1.*sind(th),ones(size(th)).*5,'-','color',[1,1,1].*0.2)
+% %   th=-180:1:180; plot3(r1.*cosd(th),r1.*sind(th),ones(size(th)).*24,'-','color',[1,1,1].*0.2)
+% %   for th=0:90:270; plot3([1,1].*r1.*cosd(th),[1,1].*r1.*sind(th),[5,24],'-','color',[1,1,1].*0.2); end
+% %   plot3([-1,1].*r1,[0,0],[1,1].*24,'-','color',[1,1,1].*0.2)
+% %   plot3([0,0],[-1,1].*r1,[1,1].*24,'-','color',[1,1,1].*0.2)
+% %   plot3([-1,1].*r2,[0,0],[1,1].*01,'-','color',[1,1,1].*0.2)
+% %   plot3([0,0],[-1,1].*r2,[1,1].*01,'-','color',[1,1,1].*0.2)
   
   camlight;camlight
   view([88,65])
@@ -200,8 +226,22 @@ for iDay=1:1:numel(Settings.TimeRange)
   
   
   %labelling
-  plot3([4300,4700],[0,0],[0,0],'k-','clipping','off'); text(4900,0,0,'90E','fontsize',10);
-  plot3([0,0],[-4300,-4700],[0,0],'k-','clipping','off'); text(0,-5300,0,'0E','fontsize',10);
+  plot3([4300,4700],[0,0],[1,1].*1,'k-','clipping','off'); text(4900,0,0,'90E','fontsize',10);
+  plot3([0,0],[-4300,-4700],[1,1].*1,'k-','clipping','off'); text(0,-5300,0,'0E','fontsize',10);
 
   
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% colourbar
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawnow
+
+Colours = [153,0,0;153,0,0;255,255,255;255,255,255;255,255,255;0,128,255;0,128,255]./255;
+colormap(Colours)
+cb1 = colorbar('southoutside','position',[0.04 0.06 0.1 0.02]);
+caxis([0,size(Colours,1)]);
+cb1.Label.String = ['U_{HLOS} [ms^{-1}]'];
+set(cb1,'xtick',[2,5],'xticklabel',[-1,1].*Settings.ColourLimit);
+% set(cb1,'xtick',0:1:10)

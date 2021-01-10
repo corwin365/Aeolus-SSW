@@ -12,7 +12,7 @@ clearvars
 
 Settings.Var         = 'U';
 Settings.HeightLevel = 16; %km
-Settings.TimeRange   = -4:2:13;% -15:1:20; %one plot for the range between each pair of numbers
+Settings.TimeRange   = 0:1:10;% -15:1:20; %one plot for the range between each pair of numbers
 % Settings.MaxLat = 70; %remove areas near pole - projections are wonky
 
 
@@ -23,7 +23,7 @@ Settings.SmoothSize = [5,3]; %lon/lat units - both depend on gridding choices
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Data = load('../01Gridding/aeolus_maps_24.mat');
+Data = load('../01Gridding/aeolus_maps.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters
