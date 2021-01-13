@@ -36,7 +36,11 @@ for iDay=1:1:numel(Settings.TimeScale)
   dd = date2doy(Settings.TimeScale(iDay));
   File = [Settings.DataDir,'/',sprintf('%04d',yy),'/',...
           'era5_',sprintf('%04d',yy),'d',sprintf('%03d',dd),'.nc'];
-  if ~exist(File); continue; end
+  if ~exist(File);
+    File = [Settings.DataDir,'/',sprintf('%04d',yy),'/',...
+            'era5t_',sprintf('%04d',yy),'d',sprintf('%03d',dd),'.nc'];
+    if ~exist(File); continue; end
+  end
   Data = rCDF(File);
   Prs = ecmwf_prs_v2([],137);
   clear yy dd File

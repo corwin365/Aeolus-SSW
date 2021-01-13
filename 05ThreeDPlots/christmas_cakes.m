@@ -19,7 +19,7 @@ clearvars -except Topo Map
 
 %data selection
 Settings.InFile = 'aeolus_data_3d_2021.mat';
-Settings.TimeRange = datenum(2021,1,[-10:2:30]); %plot data will be averaged over this range
+Settings.TimeRange = datenum(2021,1,[-11:1:10]); %plot data will be averaged over this range
 % % Settings.InFile = 'aeolus_data_3d_1920.mat';
 % % Settings.TimeRange = datenum(2020,1,[-10:2:30]); %plot data will be averaged over this range
 
@@ -27,7 +27,7 @@ Settings.TimeRange = datenum(2021,1,[-10:2:30]); %plot data will be averaged ove
 %data regridding - km from pole
 Settings.XGrid = -6000:50:6000;
 Settings.YGrid = -6000:50:6000;
-Settings.ZGrid = 5:0.5:25;
+Settings.ZGrid = 5:0.75:22;
 
 %colour limit
 Settings.ColourLimit = 10;
@@ -53,7 +53,7 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.04,0.01],  [0.10,0.03], 0.03);
 
 
 %convert coordinate frames
-[xi,yi] = meshgrid(-6000:10:6000,-6000:10:6000);
+[xi,yi] = meshgrid(-6000:50:6000,-6000:50:6000);
 % % [xi,yi] = meshgrid(-6000:50:6000,-6000:50:6000);
 ri = quadadd(xi,yi);
 th = atan2d(xi,yi);
@@ -80,8 +80,8 @@ mapxi = xi; mapyi = yi; clear xi yi
 
 for iDay=1:1:numel(Settings.TimeRange)
   
-  subplot(3,ceil(numel(Settings.TimeRange))./3,iDay)
-  
+  subplot(3,ceil(numel(Settings.TimeRange)./3),iDay)
+%   clf
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% load data, extract and overinterpolate onto a space grid
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,10 +225,21 @@ for iDay=1:1:numel(Settings.TimeRange)
   title(datestr(Settings.TimeRange(iDay)))
   
   
+  
   %labelling
   plot3([4300,4700],[0,0],[1,1].*1,'k-','clipping','off'); text(4900,0,0,'90E','fontsize',10);
   plot3([0,0],[-4300,-4700],[1,1].*1,'k-','clipping','off'); text(0,-5300,0,'0E','fontsize',10);
 
+  
+% %   %add arrows to the top showing the flow direction
+% %   for iX=-5000:500:5000;
+% %     for iY=-5000:500:5000;
+% %      
+% %       plot3(iX,iY,24,'ko')
+% %       
+% %     end
+% %   end
+% %   stop
   
 end
 
@@ -239,7 +250,7 @@ end
 drawnow
 
 Colours = [153,0,0;153,0,0;255,255,255;255,255,255;255,255,255;0,128,255;0,128,255]./255;
-colormap(Colours)
+colormap(flipud(Colours))
 cb1 = colorbar('southoutside','position',[0.04 0.06 0.1 0.02]);
 caxis([0,size(Colours,1)]);
 cb1.Label.String = ['U_{HLOS} [ms^{-1}]'];
