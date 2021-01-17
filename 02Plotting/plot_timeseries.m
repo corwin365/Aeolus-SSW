@@ -11,7 +11,7 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.Var         = 'U';
-Settings.HeightRange = [0,30]; %km
+Settings.HeightRange = [0,28]; %km
 Settings.TimeRange   = [-62,61]; %DoY relative to 01/Jan
 
 %smooth?
@@ -76,7 +76,8 @@ Winters = Winters(:,find(nansum(Winters,1) > 0));
 
 set(gcf,'color','w')
 clf
-subplot = @(m,n,p) subtightplot (m, n, p, [0.07,0.05],  0.10,0.15);
+% subplot = @(m,n,p) subtightplot (m, n, p, [0.07,0.05],  0.10,0.15);
+subplot = @(m,n,p) subtightplot (m, n, p, [0.07,0.05],  0.15,0.15);
 
 for iYear=1:1:numel(Years)
   
@@ -119,7 +120,7 @@ for iYear=1:1:numel(Years)
   Var2(Bad) = NaN;
   
   %plot coloured contours
-  contourf(t2,Data.Settings.HeightScale,Var2',-60:2.5:60,'edgecolor','none');
+  contourf(t2,Data.Settings.HeightScale,Var2',-60:1:60,'edgecolor','none');
   shading flat;     hold on
   
   %add line contours
@@ -128,7 +129,7 @@ for iYear=1:1:numel(Years)
   
   %tidy up
   colormap(flipud(cbrewer('div','RdBu',numel(-60:2.5:60))))
-  caxis([-1,1].*30)
+  caxis([-1,1].*25)
   xlabel(['Day of ',num2str(Years(iYear))]);
 
   
@@ -146,21 +147,21 @@ for iYear=1:1:numel(Years)
   
   %SSW peak indicators
   if Years(iYear) == 2019;
-    plot(2,27,'v','color','k','markerfacecolor','k','markersize',10)
-    plot([2,2],[27,32],'k-','linewi',5,'clipping','off')
-    text(2.3,29,'SSW')
+    plot(2,25,'v','color','k','markerfacecolor','k','markersize',10)
+    plot([2,2],[25,30],'k-','linewi',5,'clipping','off')
+    text(2.3,27,'SSW')
   end   
   if Years(iYear) == 2021
-    plot(5,27,'v','color','k','markerfacecolor','k','markersize',10)
-    plot([5,5],[27,32],'k-','linewi',5,'clipping','off')
-    text(5.5,29,'SSW')
+    plot(5,25,'v','color','k','markerfacecolor','k','markersize',10)
+    plot([5,5],[25,30],'k-','linewi',5,'clipping','off')
+    text(5.5,27,'SSW')
   end
 
   
   if iYear == 1; set(gca,'xaxislocation','top'); end
     
   %month labelling
-  if iYear < numel(Years)
+%   if iYear < numel(Years)
     yLimits = get(gca,'YLim');
     MonthPoints = [-61,-31,0,31,59];
     Names = {'Nov','Dec','Jan','Feb'};
@@ -177,7 +178,7 @@ for iYear=1:1:numel(Years)
         min(yLimits)-0.08.*range(yLimits),Names{iMonth-1}, ...
         'horizontalalignment','center')
     end
-  end
+%   end
   ylim(yLimits)
   
   %overlay tropopause height
@@ -210,5 +211,5 @@ end
 %colourbar
 
 cb =colorbar('position',[0.05 0.33 0.02 0.33]);
-caxis([-1,1].*30);
+caxis([-1,1].*25);
 cb.Label.String = ['Projected ',Settings.Var,' / ms^{-1}'];

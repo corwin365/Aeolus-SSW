@@ -136,13 +136,13 @@ for Level=[20,15,10,5]
     x = [xa,xa(end:-1:1)];
     
     %produce samples
-    ThisData = squeeze(Data(iSource,2:end-2,:,zidx));
+    ThisData = squeeze(Data(iSource,2:end-1,:,zidx));
     ToPlot = NaN(NPerc,size(ThisData,2));
     
     
     
     for iDay=1:1:size(ToPlot,2);
-      ToPlot(:,iDay) = prctile(ThisData(1:end-2,iDay),Percentiles);
+      ToPlot(:,iDay) = prctile(ThisData(1:end-1,iDay),Percentiles);
     end
     
     
@@ -172,7 +172,7 @@ for Level=[20,15,10,5]
     
     %finally, plot the specific years of interest
     plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-1,:,zidx)),xa),[11]),'-','color','r','linewi',2)
-    plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-0,:,zidx)),xa),[11]),'-','color','b','linewi',2)
+%     plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-0,:,zidx)),xa),[11]),'-','color','b','linewi',2)
 
     
     %y-labelling
@@ -260,8 +260,8 @@ for PC=[0,18,50,82,100];
 end
 hold on
 
-plot([5,20],max(h_axes.YLim).*1.35.*[1,1],'r-','linewi',2,'clipping','off')
-text(22,max(h_axes.YLim).*1.35,'2019/20','color','r')
+plot([40,60],max(h_axes.YLim).*1.35.*[1,1],'r-','linewi',2,'clipping','off')
+text(6,max(h_axes.YLim).*1.35,'2020/21','color','r')
 
-plot([60,75],max(h_axes.YLim).*1.35.*[1,1],'b-','linewi',2,'clipping','off')
-text(77,max(h_axes.YLim).*1.35,'2020/21','color','b')
+% % plot([60,75],max(h_axes.YLim).*1.35.*[1,1],'b-','linewi',2,'clipping','off')
+% % text(77,max(h_axes.YLim).*1.35,'2020/21','color','b')

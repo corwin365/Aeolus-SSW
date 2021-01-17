@@ -42,8 +42,8 @@ for iDataSet = 1:1:size(Data,1)
       ThisLev = squeeze(Data.Data(iDataSet,iDay,iLevel,:,:));      
       
       %no effect on results!
-% % %       Outliers = find(ThisLev > nanmean(ThisLev(:)) + nanstd(ThisLev(:)));
-% % %       ThisLev(Outliers) = NaN;
+      Outliers = find(ThisLev > nanmean(ThisLev(:)) + 2.*nanstd(ThisLev(:)));
+      ThisLev(Outliers) = NaN;
       
       Data.Data(iDataSet,iDay,iLevel,:,:) = inpaint_nans(ThisLev);
 
@@ -51,6 +51,8 @@ for iDataSet = 1:1:size(Data,1)
   end
 end
 clear iDataSet iDay iLevel
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% compute zonal means, and hence find perturbation terms
@@ -74,6 +76,7 @@ ReA.Vp = squeeze(Perturbations(find(contains(Data.InstList,  'Era5') & contains(
 HeatFlux.Obs = Obs.Tp .* Obs.Vp;
 HeatFlux.ReA = ReA.Tp .* ReA.Vp;
 HeatFlux.Hyb = Obs.Tp .* ReA.Vp;
+HeatFlux.NoV = Obs.Tp .* ones(size(ReA.Vp)).*nanmean(ReA.Vp);
 
 clear ReA Obs
 
@@ -89,9 +92,10 @@ ReA.Up = squeeze(Perturbations(find(contains(Data.InstList,  'Era5') & contains(
 ReA.Vp = squeeze(Perturbations(find(contains(Data.InstList,  'Era5') & contains(Data.VarList,'V')),:,:,:,:));
 
 %hence, compute value
-MomFlux.Obs = Obs.Up .* Obs.Vp;
-MomFlux.ReA = ReA.Up .* ReA.Vp;
-MomFlux.Hyb = Obs.Up .* ReA.Vp;
+MomFlux.Obs  = Obs.Up .* Obs.Vp;
+MomFlux.ReA  = ReA.Up .* ReA.Vp;
+MomFlux.Hyb  = Obs.Up .* ReA.Vp;
+MomFlux.NoV = Obs.Up .* ones(size(ReA.Vp)).*nanmean(ReA.Vp);
 clear ReA Obs
 
 clear Perturbations
