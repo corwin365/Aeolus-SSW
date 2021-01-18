@@ -21,7 +21,7 @@ Settings.SmoothSize = [3,1]; %time units, height units - both depend on gridding
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Data = load('../01Gridding/aeolus_data.mat');
+Data = load('aeolus_data.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters

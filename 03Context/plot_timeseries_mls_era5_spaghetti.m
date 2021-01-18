@@ -14,7 +14,7 @@ Settings.TimeRange   = [-62,62]; %DoY relative to 01/Jan
 
 
 %files
-Settings.MlsData  = 'mls_data_b.mat';
+Settings.MlsData  = 'mls_data.mat';
 Settings.Era5Data = 'era5_data.mat';
 
 
@@ -260,8 +260,8 @@ for PC=[0,18,50,82,100];
 end
 hold on
 
-plot([40,60],max(h_axes.YLim).*1.35.*[1,1],'r-','linewi',2,'clipping','off')
-text(6,max(h_axes.YLim).*1.35,'2020/21','color','r')
+plot([45,65],max(h_axes.YLim).*1.35.*[1,1],'r-','linewi',2,'clipping','off')
+text(20,max(h_axes.YLim).*1.35,'2020/21','color','r')
 
 % % plot([60,75],max(h_axes.YLim).*1.35.*[1,1],'b-','linewi',2,'clipping','off')
 % % text(77,max(h_axes.YLim).*1.35,'2020/21','color','b')

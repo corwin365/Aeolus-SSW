@@ -8,7 +8,7 @@ clearvars
 %from Aeolus and MLS data, and (separately) ERA5 output
 %
 %
-%the plotting code here has been through many cycles of revision and may be
+%the plotting code here has been through many cycles of modification and is
 %hard to read - sorry about this, it works but it's just a bit messy
 %
 %
@@ -120,11 +120,10 @@ for iLevel = 1:1:numel(Settings.Levels)
     
 
   
-  plot(Data.Grid.TimeScale,HeatFlux.ReA,'-','linewi',3,'color',Colours.ReA)
-  hold on
-  plot(Data.Grid.TimeScale,HeatFlux.Obs,'-','linewi',3,'color',Colours.Obs)
-  plot(Data.Grid.TimeScale,HeatFlux.Hyb,'-','linewi',3,'color',Colours.Hyb)
+  plot(Data.Grid.TimeScale,HeatFlux.ReA,'-','linewi',2,'color',Colours.ReA)
   plot(Data.Grid.TimeScale,HeatFlux.NoV,'-','linewi',2,'color',Colours.NoV)
+  plot(Data.Grid.TimeScale,HeatFlux.Obs,'-','linewi',2,'color',Colours.Obs)
+  plot(Data.Grid.TimeScale,HeatFlux.Hyb,'-','linewi',2,'color',Colours.Hyb)
  
   datetick
   set(gca,'xtick',datenum(2020,1:1:20,15),'xticklabel',datestr(datenum(2020,1:1:19,15),'mmm'))
@@ -157,11 +156,10 @@ for iLevel = 1:1:numel(Settings.Levels)
   for iY=-4:1:4; plot(datenum(2020,[10,15],1),[1,1].*iY,'-','linewi',0.25,'color',[1,1,1].*0.8); end
   box on; grid off  
   
-  plot(Data.Grid.TimeScale,MomFlux.ReA,'-','linewi',3,'color',Colours.ReA)
-  hold on
-  plot(Data.Grid.TimeScale,MomFlux.Obs,'-','linewi',3,'color',Colours.Obs)
-  plot(Data.Grid.TimeScale,MomFlux.Hyb,'-','linewi',3,'color',Colours.Hyb)
+  plot(Data.Grid.TimeScale,MomFlux.ReA,'-','linewi',2,'color',Colours.ReA)
   plot(Data.Grid.TimeScale,MomFlux.NoV,'-','linewi',2,'color',Colours.NoV)
+  plot(Data.Grid.TimeScale,MomFlux.Obs,'-','linewi',2,'color',Colours.Obs)
+  plot(Data.Grid.TimeScale,MomFlux.Hyb,'-','linewi',2,'color',Colours.Hyb)
   datetick
   if Settings.Normalise == 1; ylim(yLimits); set(gca,'yticklabel',{}); end
   set(gca,'xtick',datenum(2020,1:1:20,15),'xticklabel',datestr(datenum(2020,1:1:19,15),'mmm'))
@@ -192,13 +190,13 @@ for iLevel = 1:1:numel(Settings.Levels)
     
     subplot(numel(Settings.Levels),5,k)
     hold on
-    plot([1,1].*1,HeatFlux.Range.ReA,'o-','linewi',3,'color',Colours.ReA)
-    plot([1,1].*2,HeatFlux.Range.Hyb,'o-','linewi',3,'color',Colours.Hyb)
-    plot([1,1].*3,HeatFlux.Range.Obs,'o-','linewi',3,'color',Colours.Obs)
+    plot([1,1].*1,HeatFlux.Range.ReA,'o-','linewi',2,'color',Colours.ReA)
+    plot([1,1].*2,HeatFlux.Range.Hyb,'o-','linewi',2,'color',Colours.Hyb)
+    plot([1,1].*3,HeatFlux.Range.Obs,'o-','linewi',2,'color',Colours.Obs)
     plot([1,1].*4,HeatFlux.Range.NoV,'o-','linewi',2,'color',Colours.NoV)
-    plot([1,1].*6, MomFlux.Range.ReA,'^-','linewi',3,'color',Colours.ReA)
-    plot([1,1].*7, MomFlux.Range.Hyb,'^-','linewi',3,'color',Colours.Hyb)
-    plot([1,1].*8, MomFlux.Range.Obs,'^-','linewi',3,'color',Colours.Obs)
+    plot([1,1].*6, MomFlux.Range.ReA,'^-','linewi',2,'color',Colours.ReA)
+    plot([1,1].*7, MomFlux.Range.Hyb,'^-','linewi',2,'color',Colours.Hyb)
+    plot([1,1].*8, MomFlux.Range.Obs,'^-','linewi',2,'color',Colours.Obs)
     plot([1,1].*9, MomFlux.Range.NoV,'^-','linewi',2,'color',Colours.NoV)
     set(gca,'xtick',1:1:9,'xticklabel',{'ReA','Hyb','Obs','NoV',' ','ReA','Hyb','Obs','NoV'}, ...
             'yaxislocation','right')

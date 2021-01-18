@@ -2,9 +2,9 @@ clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%prepare data for Aeolus SSW analysis
+%prepare data for MLS SSW analysis
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/06
+%Corwin Wright, c.wright@bath.ac.uk, 2021/01/18
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -14,14 +14,12 @@ clearvars
 
 Settings.DataDir     = [LocalDataDir,'/MLS/'];
 Settings.LatRange    = [60,90];
-Settings.TimeScale   = [];
-for iYear=2004:1:2021;
-  Settings.TimeScale = [Settings.TimeScale, ...
-                        datenum(iYear,11,1):1:datenum(iYear+1,4,1)-1];
-end
-Settings.HeightScale = [0:2:40]; %km
+Settings.TimeScale   = [...%datenum(2018,11,1):1:datenum(2019,4,1)-1, ... 
+                        ...%datenum(2019,10,15):1:datenum(2020,3,15)-1, ...
+                        datenum(2020,10,15):1:datenum(2021,3,15)-1];
+Settings.HeightScale = [10:4:100]; %km
 Settings.HourScale   = 0:8:24;
-Settings.OutFile     = 'mls_data_b.mat';
+Settings.OutFile     = 'mls_data.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% prepare arrays
@@ -31,6 +29,7 @@ Settings.OutFile     = 'mls_data_b.mat';
 Results.T = NaN(numel(Settings.TimeScale),   ...
                 numel(Settings.HourScale)-1, ... %nothing is in hours 24+...
                 numel(Settings.HeightScale));
+
               
 %working variables used throughout
 [xi,yi] = meshgrid(Settings.HourScale,Settings.HeightScale);
@@ -43,45 +42,47 @@ OutVars = {'T'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 textprogressbar('Gridding data ')
-for iDay=numel(Settings.TimeScale):-1:1
+for iDay=1:1:numel(Settings.TimeScale)
   
   %load MLS data for this day
   [yy,~,~] = datevec(Settings.TimeScale(iDay));
   dd = date2doy(Settings.TimeScale(iDay));
   FileName = wildcardsearch(Settings.DataDir,['*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
   clear yy dd
-  if numel(FileName) == 0; clear FileName; continue; end  
+  if numel(FileName) == 0; clear FileName; continue; end
   
   %two versions mixed...
-  Data = get_MLS(FileName{1},'Temperature-StdProd');
-  if numel(Data.L2gpValue) == 0; Data = get_MLS(FileName{1},'Temperature');end
+  Data = get_MLS(FileName{1},'Temperature');
+  if numel(Data.L2gpValue) == 0; Data = get_MLS(FileName{1},'Temperature_StdProd');end
   
   Data.T = Data.L2gpValue(:);
   [l,p] = meshgrid(Data.Latitude,p2h(Data.Pressure));
-  Data.Lat  = l(:);
-  Data.Z    = p(:);
-  Data.Time = repmat(Data.Time,1,numel(Data.Pressure)); Data.Time = Data.Time(:);
+  Data.Lat  = l;
+  Data.Z    = p;
+  Data.Time = repmat(datenum(1993,1,1,0,0,Data.Time),1,numel(Data.Pressure));
   clear l p
- 
-  %pull out the region of interest
-  Data.T    = Data.T(   inrange(Data.Lat,Settings.LatRange));
-  Data.Z    = Data.Z(   inrange(Data.Lat,Settings.LatRange));
-  Data.Time = Data.Time(inrange(Data.Lat,Settings.LatRange));
   
+  
+  %pull out the requested variable,s plus geolocation
+  Mls.Lat  = flatten(repmat( Data.Latitude,1,numel(Data.Pressure))');
+  Mls.Lon  = flatten(repmat(Data.Longitude,1,numel(Data.Pressure))');
+  Mls.Alt  = flatten(Data.Z);
+  Mls.Time = flatten(Data.Time');
+  Mls.T    = flatten(Data.L2gpValue);
+  clear Data
+
+
   %convert time to hours
-  [~,~,~,hh,~,~] = datevec(datenum(1993,1,1,0,0,Data.Time));
+  [~,~,~,hh,~,~] = datevec(Mls.Time);
   
   %grid
   for iVar=1:1:numel(InVars)
-    InField  = Data.(InVars{iVar});
+    InField  = Mls.(InVars{iVar});
     OutField = Results.(OutVars{iVar}); 
-    zz = squeeze(bin2matN(2,hh,Data.Z,InField,xi,yi,'@nanmedian'))';
+    zz = squeeze(bin2matN(2,hh,Mls.Alt,InField,xi,yi,'@nanmean'))';
     OutField(iDay,:,:) = zz(1:end-1,:); %again, nothing is in hours 24+
     Results.(OutVars{iVar}) = OutField;
   end; clear iVar dd hh InField OutField zz
-  
-  
-  if mod(iDay,100) == 0;save(Settings.OutFile,'Settings','Results');end
   
   textprogressbar(iDay./numel(Settings.TimeScale).*100);
 end; clear iDay xi yi InVars OutVars

@@ -13,11 +13,11 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.DataDir     = [LocalDataDir,'/Aeolus/NC_FullQC/'];
-Settings.LatScale    = 20:3:90;
+Settings.LatScale    = 20:5:90;
 Settings.LonScale    = 0:30:360;
 Settings.TimeScale   = [...%datenum(2018,12,10):1:datenum(2019,1,20)-1, ... 
-                        datenum(2019,12,10):1:datenum(2020,1,20)-1, ...
-                        datenum(2020,12,10):1:datenum(2021,1,20)-1];
+                        ...%datenum(2019,12,10):1:datenum(2020,1,20)-1, ...
+                        datenum(2020,11,1):1:datenum(2021,3,1)-1];
 Settings.HeightScale = 4:2:26;
 Settings.OutFile     = 'aeolus_maps.mat';
 
