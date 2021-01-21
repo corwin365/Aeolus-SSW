@@ -1,9 +1,9 @@
 clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%plot time series of zonal mean Aeolus winds
+%plot maps of MLS T with Aeolus wind vectors overlaid
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/06
+%Corwin Wright, c.wright@bath.ac.uk, 2021/01/20
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,11 +30,17 @@ Settings.QuivScale = 1;%.25;
 %smooth?
 Settings.SmoothSize = [5,3]; %degrees lat/lon
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Data = load('aeolus_maps.mat');
+
+%add temperature data. must be on same grid
+T = load('mls_maps.mat');
+Data.Results.T = T.Results.T; clear T;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters
@@ -111,7 +117,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   %%%%%%%%%%%%%%%%%%%%%%%%%%
   k = k+1;
   subplot(Settings.Rows,ceil(numel(Settings.DaysToPlot)./Settings.Rows),k)
-  m_proj('stereographic','lat',90,'long',0,'radius',45);
+  m_proj('stereographic','lat',90,'long',0,'radius',60);
   
   %extract data
   %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -123,10 +129,11 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   idx = Indices(idx);
   
   %pull out DATA for the period and height level
-  U = Data.Results.U; V = Data.Results.V;
+  U = Data.Results.U; V = Data.Results.V; T = Data.Results.T;
   zidx = closest(Settings.HeightLevel,Data.Settings.HeightScale);
   U = squeeze(nanmean(U(idx,:,:,zidx),1));
   V = squeeze(nanmean(V(idx,:,:,zidx),1));  
+  T = squeeze(nanmean(T(idx,:,:,zidx),1)); 
   clear zidx idx
   
   %scale up V?
@@ -134,7 +141,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   
   
   %duplicate endpoint, for plotting round the globe
-  U(end,:) = U(1,:);   V(end,:) = V(1,:);
+  U(end,:) = U(1,:);   V(end,:) = V(1,:);   T(end,:) = T(1,:);
   
   %fill NaNs. keep completely empty latitude bands empty
 % %   Empty = nansum(U,1); Empty(Empty == 0) = NaN; Empty(Empty ~= 0) = 1; Empty = repmat(Empty,size(U,1),1);
@@ -145,7 +152,9 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   xold = Data.Settings.LonScale; xnew = 0:1:360;
   yold = Data.Settings.LatScale; ynew = -90:1:90;
   [xold,yold] = meshgrid(xold,yold); [xnew,ynew] = meshgrid(xnew,ynew);
-  U = interp2(xold,yold,U',xnew,ynew);   V = interp2(xold,yold,V',xnew,ynew);
+  U = interp2(xold,yold,U',xnew,ynew);   
+  V = interp2(xold,yold,V',xnew,ynew);
+  T = interp2(xold,yold,T',xnew,ynew);
   clear xold yold
   
   %smooth. This requires dealing with NaNs and the spherical Earth
@@ -159,21 +168,17 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   V = smoothn(inpaint_nans(V),Settings.SmoothSize);
   V = V(size(xnew,1)+1:2.*size(xnew,1),:);
   V(Bad) = NaN;  
+  Bad = find(isnan(T));
+  T = [T;T;T];
+  T = smoothn(inpaint_nans(T),Settings.SmoothSize);
+  T = T(size(xnew,1)+1:2.*size(xnew,1),:);
+  T(Bad) = NaN;  
 
   
-  %double negative values. colourbar will be modified to compensate
-  %this is because the maximum +ve >> maximum -ve
-  U(U <0) = U(U<0).*2;   V(V <0) = V(V<0).*2;
-
   %plot
-  m_contourf(xnew,ynew,U,-60:2.5:60,'edgecolor','none')
+  m_contourf(xnew,ynew,T,190:4:230,'edgecolor','none')
   m_coast('color',[1,1,1].*0);%.7);
   hold on
-  
-  
-  %put negative values back to normal for the quiver vectors
-  U(U <0) = U(U<0)./2;   V(V <0) = V(V<0)./2;  
-  
   
   
   %add quiver of wind vectors
@@ -185,7 +190,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   %remove high latitudes (u and v get very bad)
   ynewQ(ynewQ > 75) = NaN;
   
-  m_quiver(xnewQ,ynewQ,UQ,VQ,'color','w','linewi',1, ...
+  m_quiver(xnewQ,ynewQ,UQ,VQ,'color','k','linewi',1, ...
            'autoscale','on','autoscalefactor',Settings.QuivScale); 
   
 % %   %add some line contours
@@ -200,10 +205,11 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 
   
   %colours
-  Colours = flipud(cbrewer('div','RdBu',31)); Colours(14:17,:) = 1; %this is deliberately asymmetric, as the negatives are double
-%   Colours = flipud(cbrewer('div','RdYlBu',31)); 
+%   Colours = flipud(cbrewer('div','RdBu',31)); Colours(14:17,:) = 1; %this is deliberately asymmetric, as the negatives are double
+  Colours = flipud(cbrewer('div','RdYlBu',31)); 
+%   Colours = cbrewer('seq','Reds',31); 
   colormap(Colours)
-  caxis([-1,1].*30)
+  caxis([190,230])
   
   drawnow
   
@@ -219,6 +225,6 @@ end
 
 drawnow
 cb1 = colorbar('southoutside','position',[0.06 0.06 0.15 0.02]);
-cb1.Label.String = ['U [ms^{-1}]'];
-ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
+cb1.Label.String = ['T [K]'];
+ticks = 190:10:230; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
 set(cb1,'xtick',ticks,'xticklabel',labels);

@@ -188,7 +188,7 @@ for iDay=1:1:numel(Settings.TimeRange)
   
   %%plot Earth surface over smoothed topography
   hMap = surface(mapxi,mapyi,tp,Map2,...
-    'FaceColor','texturemap','EdgeColor','none','CDataMapping','direct');
+                 'FaceColor','texturemap','EdgeColor','none','CDataMapping','direct');
   set(hMap,'clipping','on')
   %set terrain to not reflect light specularly
   set(hMap,'DiffuseStrength',0.5,'SpecularStrength',0)

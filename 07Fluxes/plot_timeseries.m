@@ -34,13 +34,16 @@ Settings.SmoothDays = 5;
 %normalise?
 Settings.Normalise = 1;
 
+%last day to plot (won't be needed in final version)
+Settings.LastDay = datenum(2021,01,16);
+
 %colours
 cbrew = cbrewer('qual','Set1',9);
 
 Colours.ReA = [0,0,0];
-Colours.Obs = cbrew(2,:);
-Colours.NoV = cbrew(5,:);
-Colours.Hyb = cbrew(1,:);
+Colours.Obs = cbrew(5,:);
+Colours.NoV = [1,1,1].*0.6;%cbrew(5,:);
+Colours.Hyb = cbrew(2,:);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% load data, and subset down to region
@@ -70,13 +73,14 @@ for iLevel = 1:1:numel(Settings.Levels)
   clear zidx latidx lonidx a
   
   
+  
   %remove outliers
   Vars = {'Obs','ReA','Hyb','NoV'};
   for iVar=1:1:numel(Vars)
     
-    %remove outliers (routine uses a 3stdev cutoff)
-    [~,rm] = rmoutliers(HeatFlux.(Vars{iVar})); 
-    a = HeatFlux.(Vars{iVar}); a(rm) = NaN; HeatFlux.(Vars{iVar}) = a;
+% % % % %     %remove outliers (routine uses a 3stdev cutoff)
+% % % % %     [~,rm] = rmoutliers(HeatFlux.(Vars{iVar})); 
+% % % % %     a = HeatFlux.(Vars{iVar}); a(rm) = NaN; HeatFlux.(Vars{iVar}) = a;
 
     [~,rm] = rmoutliers(MomFlux.(Vars{iVar})); 
     a = MomFlux.(Vars{iVar}); a(rm) = NaN; MomFlux.(Vars{iVar}) = a;    
@@ -85,6 +89,10 @@ for iLevel = 1:1:numel(Settings.Levels)
     HeatFlux.(Vars{iVar}) = smoothn(inpaint_nans(HeatFlux.(Vars{iVar})),[Settings.SmoothDays]);
     MomFlux.( Vars{iVar}) = smoothn(inpaint_nans( MomFlux.(Vars{iVar})),[Settings.SmoothDays]);
 
+    %remove dates after end of data (not needed in final version)
+    Var = HeatFlux.(Vars{iVar}); Var(Data.Grid.TimeScale > Settings.LastDay) = NaN; HeatFlux.(Vars{iVar}) = Var;
+    Var = MomFlux.( Vars{iVar}); Var(Data.Grid.TimeScale > Settings.LastDay) = NaN; MomFlux.( Vars{iVar}) = Var;
+    
     %normalise?
     if Settings.Normalise == 1;
       
@@ -112,13 +120,10 @@ for iLevel = 1:1:numel(Settings.Levels)
   %produce a grid: shade alternate months
   hold on
   for iMonth=10:2:14
-    patch(datenum(2020,[0,1,1,0,0]+iMonth,1),[-1,-1,1,1,-1].*3.95,[1,1,1].*0.9,'edgecolor',[1,1,1].*0.8)
+    patch(datenum(2020,[0,1,1,0,0]+iMonth,1),[-1,-1,1,1,-1].*3.95,[1,1,1].*0.95,'edgecolor',[1,1,1].*0.8)
   end
   for iY=-4:1:4; plot(datenum(2020,[10,15],1),[1,1].*iY,'-','linewi',0.25,'color',[1,1,1].*0.8); end
   box on; grid off
-
-    
-
   
   plot(Data.Grid.TimeScale,HeatFlux.ReA,'-','linewi',2,'color',Colours.ReA)
   plot(Data.Grid.TimeScale,HeatFlux.NoV,'-','linewi',2,'color',Colours.NoV)

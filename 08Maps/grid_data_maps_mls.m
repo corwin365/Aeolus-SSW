@@ -2,9 +2,9 @@ clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%prepare data for MLS SSW analysis
+%prepare data for Aeolus SSW analysis
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/18
+%Corwin Wright, c.wright@bath.ac.uk, 2021/01/06
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -13,13 +13,13 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.DataDir     = [LocalDataDir,'/MLS/'];
-Settings.LatRange    = [60,90];
-Settings.TimeScale   = [...%datenum(2018,11,1):1:datenum(2019,4,1)-1, ... 
-                        ...%datenum(2019,10,15):1:datenum(2020,3,15)-1, ...
-                        datenum(2020,10,15):1:datenum(2021,3,15)-1];
-Settings.HeightScale = [10:4:50,54:6:120]; %km
-Settings.HourScale   = 0:8:24;
-Settings.OutFile     = 'mls_data.mat';
+Settings.LatScale    = 20:5:90;
+Settings.LonScale    = 0:30:360;
+Settings.TimeScale   = [...%datenum(2018,12,10):1:datenum(2019,1,20)-1, ... 
+                        ...%datenum(2019,12,10):1:datenum(2020,1,20)-1, ...
+                        datenum(2020,11,1):1:datenum(2021,3,1)-1];
+Settings.HeightScale = 4:2:26;
+Settings.OutFile     = 'mls_maps.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% prepare arrays
@@ -27,12 +27,12 @@ Settings.OutFile     = 'mls_data.mat';
 
 %results arrays
 Results.T = NaN(numel(Settings.TimeScale),   ...
-                numel(Settings.HourScale)-1, ... %nothing is in hours 24+...
+                numel(Settings.LonScale),    ...
+                numel(Settings.LatScale),    ...
                 numel(Settings.HeightScale));
-
               
 %working variables used throughout
-[xi,yi] = meshgrid(Settings.HourScale,Settings.HeightScale);
+[xi,yi,zi] = meshgrid(Settings.LonScale,Settings.LatScale,Settings.HeightScale);
 InVars  = {'T'};
 OutVars = {'T'};
   
@@ -44,6 +44,7 @@ OutVars = {'T'};
 textprogressbar('Gridding data ')
 for iDay=1:1:numel(Settings.TimeScale)
   
+
   %load MLS data for this day
   [yy,~,~] = datevec(Settings.TimeScale(iDay));
   dd = date2doy(Settings.TimeScale(iDay));
@@ -65,27 +66,24 @@ for iDay=1:1:numel(Settings.TimeScale)
   
   %pull out the requested variable,s plus geolocation
   Mls.Lat  = flatten(repmat( Data.Latitude,1,numel(Data.Pressure))');
-  Mls.Lon  = flatten(repmat(Data.Longitude,1,numel(Data.Pressure))');
+  Mls.Lon  = flatten(repmat(Data.Longitude,1,numel(Data.Pressure))'); Mls.Lon(Mls.Lon <0) = Mls.Lon(Mls.Lon <0)+360;
   Mls.Alt  = flatten(Data.Z);
   Mls.Time = flatten(Data.Time');
   Mls.T    = flatten(Data.L2gpValue);
   clear Data
-
-
-  %convert time to hours
-  [~,~,~,hh,~,~] = datevec(Mls.Time);
   
   %grid
   for iVar=1:1:numel(InVars)
     InField  = Mls.(InVars{iVar});
     OutField = Results.(OutVars{iVar}); 
-    zz = squeeze(bin2matN(2,hh,Mls.Alt,InField,xi,yi,'@nanmean'))';
-    OutField(iDay,:,:) = zz(1:end-1,:); %again, nothing is in hours 24+
+    zz = squeeze(bin2matN(3,Mls.Lon,Mls.Lat,Mls.Alt,InField,xi,yi,zi,'@nanmean'));
+    OutField(iDay,:,:,:) = permute(zz,[2,1,3]); %again, nothing is in hours 24+
     Results.(OutVars{iVar}) = OutField;
+ 
   end; clear iVar dd hh InField OutField zz
   
   textprogressbar(iDay./numel(Settings.TimeScale).*100);
-end; clear iDay xi yi InVars OutVars
+end; clear iDay xi yi InVars OutVars zi
 textprogressbar('!')
 
 save(Settings.OutFile,'Settings','Results')

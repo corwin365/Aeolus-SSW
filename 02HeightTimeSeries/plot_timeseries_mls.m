@@ -11,11 +11,11 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.Var         = 'T';
-Settings.HeightRange = [0,70]; %km
+Settings.HeightRange = [0,90]; %km
 Settings.TimeRange   = [-62,61]; %DoY relative to 01/Jan
 
 %smooth?
-Settings.SmoothSize = [15,1]; %time units, height units - both depend on gridding choices
+Settings.SmoothSize = [9,1]; %time units, height units - both depend on gridding choices
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
@@ -86,7 +86,7 @@ for iYear=1:1:numel(Years)
   axis([Settings.TimeRange Settings.HeightRange])
   hold on; box on
   ylabel(Years(iYear),'fontsize',24)
-  set(gca,'ytick',0:10:90); ylabel('Altitude [km]') %altitude  
+  set(gca,'ytick',0:10:150); ylabel('Altitude [km]') %altitude  
   set(gca,'tickdir','out')
   
   %get indices for this year
@@ -117,11 +117,14 @@ for iYear=1:1:numel(Years)
   
   
   %overinteprolate, so that the steps up are rectangles rather than triangles
-  t2 = min(t):0.025:max(t);
+  t2 = t;%min(t):0.1:max(t);
   Var2 = interp1(t,Var,t2,'nearest');
   Bad = find(isnan(Var2));
   Var2 = smoothn(inpaint_nans(Var2),[17,1]); %this smoothing is smaller than the overinterpolation, so it just makes the data look less jagged without altering the measured signal
   Var2(Bad) = NaN;
+  
+  %fill bottom contourf
+  Var2(Var2 < -5) = -5;
   
   %plot coloured contours
   contourf(t2,Data.Settings.HeightScale,Var2',-5:0.5:5,'edgecolor','none');
@@ -145,20 +148,15 @@ for iYear=1:1:numel(Years)
 % %          'fontsize',10,'color',[1,1,1].*0.3)
 % %   end
   text(min(Settings.TimeRange)+0.01.*range(Settings.TimeRange), ...
-       0.99.*range(Settings.HeightRange)-min(Settings.HeightRange), ...
+       0.05.*range(Settings.HeightRange)-min(Settings.HeightRange), ...
        [num2str(Years(iYear)-1),'/',num2str(Years(iYear)-2000),', ',num2str(min(Data.Settings.LatRange)),'N-',num2str(max(Data.Settings.LatRange)),'N mean' ], ...
        'fontsize',18,'verticalalignment','top')
   
   %SSW peak indicators
-  if Years(iYear) == 2019;
-    plot(2,9,'^','color','k','markerfacecolor','k','markersize',10)
-    plot([2,2],[2,9],'k-','linewi',5,'clipping','off')
-    text(2.3,7,'SSW')
-  end   
   if Years(iYear) == 2021
-    plot(2,7,'^','color','k','markerfacecolor','k','markersize',10)
-    plot([2,2],[2,7],'k-','linewi',5,'clipping','off')
-    text(2.5,5,'SSW')
+    plot(5,7,'^','color','k','markerfacecolor','k','markersize',10)
+    plot([5,5],[2,7],'k-','linewi',5,'clipping','off')
+    text(6,5,'SSW')
   end
 
   
@@ -200,7 +198,7 @@ for iYear=1:1:numel(Years)
              'YAxisLocation','right',...
              'Color','none');
   set(gca,'xtick',[],'tickdir','out')
-  set(gca,'ytick',0:10:90,'yticklabel',roundsd(h2p(0:10:90),2))
+  set(gca,'ytick',0:10:150,'yticklabel',roundsd(h2p(0:10:150),2))
   ylim(Settings.HeightRange)
   ylabel('Pressure [hPa]')
   

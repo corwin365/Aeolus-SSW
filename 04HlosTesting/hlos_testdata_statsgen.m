@@ -108,7 +108,7 @@ for iZ=1:1:numel(Settings.An2.ZScale);
                  & Store.alt <= Settings.An2.ZScale(iZ)+0.5.*Settings.An2.LayerDepth);
                
   %make maps
-  Vars = {'DeltaU','DeltaV','DeltaU_Frac','DeltaV_Frac'};
+  Vars = {'DeltaU','DeltaV','DeltaU_Frac','DeltaV_Frac','Era5_U','Era5_V','Era5_U_Proj','Era5_V_Proj'};
   for iVar=1:1:numel(Vars)
     Field = Store.(Vars{iVar});
     An2.ErrorStore(iVar,:,:,iZ) = bin2mat(Store.lon(ThisLevel),Store.lat(ThisLevel), ...

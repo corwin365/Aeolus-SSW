@@ -19,7 +19,7 @@ for iYear=2004:1:2021;
   Settings.TimeScale = [Settings.TimeScale, ...
                         datenum(iYear,11,1):1:datenum(iYear+1,4,1)-1];
 end
-Settings.HeightScale = [0:2:40]; %km
+Settings.HeightScale = [10:4:40]; %km
 Settings.HourScale   = 0:8:24;
 Settings.OutFile     = 'mls_data.mat';
 

@@ -18,11 +18,11 @@ Settings.OutFile          = 'gridded_data.mat';
 %common gridding settings
 Settings.Grid.LatScale    = -90:10:90;
 Settings.Grid.LonScale    = -180:20:180;
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,1,10);
+Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
 Settings.Grid.HeightScale = 0:2:26; %km
 
 %list of datasets
-Settings.DataSets         = {'Mls','Era5','Aeolus'};
+Settings.DataSets         = {'Mls','Aeolus','Era5'};
 
 %Aeolus-specific settings
 Settings.Aeolus.DataDir   = [LocalDataDir,'/Aeolus/NC_FullQC/'];
