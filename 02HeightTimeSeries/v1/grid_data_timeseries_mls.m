@@ -18,7 +18,7 @@ Settings.TimeScale   = [...%datenum(2018,11,1):1:datenum(2019,4,1)-1, ...
                         ...%datenum(2019,10,15):1:datenum(2020,3,15)-1, ...
                         datenum(2020,10,15):1:datenum(2021,3,15)-1];
 Settings.HeightScale = [10:4:50,54:6:120]; %km
-Settings.HourScale   = 0:8:24;
+Settings.HourScale   = [0,24];
 Settings.OutFile     = 'mls_data.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

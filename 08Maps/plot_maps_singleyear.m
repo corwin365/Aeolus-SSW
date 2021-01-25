@@ -11,7 +11,7 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.HeightLevel   = 17; %km
-Settings.DaysToPlot    = -30:3:23; %relative to 01/Jan
+Settings.DaysToPlot    = -30:3:50;%relative to 01/Jan
 Settings.DaysToAverage = 3; %must be odd - days centred on date of interest
 Settings.Year          = 2021;
 
@@ -98,7 +98,7 @@ clear idx YearsAll Years
 
 set(gcf,'color','w')
 clf
-subplot = @(m,n,p) subtightplot (m, n, p, 0.025,  [0.1 0.03], 0.03);
+subplot = @(m,n,p) subtightplot (m, n, p, 0.02,  0.03, 0.03);
 
 
 

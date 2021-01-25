@@ -171,7 +171,7 @@ for Level=[20,15,10,5]
     end
     
     %finally, plot the specific years of interest
-    plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-1,:,zidx)),xa),[11]),'-','color','r','linewi',2)
+    plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-1,:,zidx)),xa),[1]),'-','color','r','linewi',2)
 %     plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-0,:,zidx)),xa),[11]),'-','color','b','linewi',2)
 
     
@@ -260,7 +260,7 @@ for PC=[0,18,50,82,100];
 end
 hold on
 
-plot([45,65],max(h_axes.YLim).*1.35.*[1,1],'r-','linewi',2,'clipping','off')
+plot([50,70],max(h_axes.YLim).*1.35.*[1,1],'r-','linewi',2,'clipping','off')
 text(20,max(h_axes.YLim).*1.35,'2020/21','color','r')
 
 % % plot([60,75],max(h_axes.YLim).*1.35.*[1,1],'b-','linewi',2,'clipping','off')

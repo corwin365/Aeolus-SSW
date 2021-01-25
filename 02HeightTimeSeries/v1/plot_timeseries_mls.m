@@ -1,27 +1,27 @@
 clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%plot time series of zonal mean Aeolus winds
+%plot time series of zonal mean MLS T
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/06
+%Corwin Wright, c.wright@bath.ac.uk, 2021/01/18
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Settings.Var         = 'U';
-Settings.HeightRange = [0,28]; %km
+Settings.Var         = 'T';
+Settings.HeightRange = [0,90]; %km
 Settings.TimeRange   = [-62,61]; %DoY relative to 01/Jan
 
 %smooth?
-Settings.SmoothSize = [3,1]; %time units, height units - both depend on gridding choices
+Settings.SmoothSize = [9,1]; %time units, height units - both depend on gridding choices
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Data = load('aeolus_data.mat');
+Data = load('mls_data.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters
@@ -86,7 +86,7 @@ for iYear=1:1:numel(Years)
   axis([Settings.TimeRange Settings.HeightRange])
   hold on; box on
   ylabel(Years(iYear),'fontsize',24)
-  set(gca,'ytick',0:10:50); ylabel('Altitude [km]') %altitude  
+  set(gca,'ytick',0:10:150); ylabel('Altitude [km]') %altitude  
   set(gca,'tickdir','out')
   
   %get indices for this year
@@ -111,30 +111,33 @@ for iYear=1:1:numel(Years)
     Var(Bad) = NaN; clear Bad
   end
   
+% %   %subtract time-mean at each height
+% %   Var = Var - repmat(nanmean(Var,1),size(t,1),1);
+% %   
+  
   
   %overinteprolate, so that the steps up are rectangles rather than triangles
-  t2 = min(t):0.025:max(t);
+  t2 = t;%min(t):0.1:max(t);
   Var2 = interp1(t,Var,t2,'nearest');
-  Bad = find(isnan(Var2));
-  Var2 = smoothn(inpaint_nans(Var2),[17,1]); %this smoothing is smaller than the overinterpolation, so it just makes the data look less jagged without altering the measured signal
-  Var2(Bad) = NaN;
+%   Bad = find(isnan(Var2));
+%   Var2 = smoothn(inpaint_nans(Var2),[17,1]); %this smoothing is smaller than the overinterpolation, so it just makes the data look less jagged without altering the measured signal
+%   Var2(Bad) = NaN;
   
-  %stretch negative values, as they will be harder to see
-  %colourbar will be adjusted to compensate
-  Var2(Var2 < 0) = Var2(Var2 < 0).*2;
+  %fill bottom contourf
+  Var2(Var2 < -5) = -5;
   
   %plot coloured contours
-  contourf(t2,Data.Settings.HeightScale,Var2',-60:1:60,'edgecolor','none');
+  contourf(t2,Data.Settings.HeightScale,Var2',200:5:260,'edgecolor','none');
   shading flat;     hold on
   
-  %add line contours. Need to put values back.
-  Var2(Var2 < 0) = Var2(Var2 < 0)./2;  
-  [c,h] = contour(t2,Data.Settings.HeightScale,Var2',[-60:10:60],'edgecolor',[1,1,1].*0.4);
+  %add line contours
+  [c,h] = contour(t2,Data.Settings.HeightScale,Var2',-10:1:10,'edgecolor',[1,1,1].*0.4);
   clabel(c,h);
   
   %tidy up
-  colormap(flipud(cbrewer('div','RdBu',numel(-60:2.5:60))))
-  caxis([-1,1].*25)
+  colormap(flipud(cbrewer('div','RdYlBu',numel(-5:0.5:5))))
+%   caxis([-1,1].*5)
+  caxis([200 260])
   xlabel(['Day of ',num2str(Years(iYear))]);
 
   
@@ -146,45 +149,40 @@ for iYear=1:1:numel(Years)
 % %          'fontsize',10,'color',[1,1,1].*0.3)
 % %   end
   text(min(Settings.TimeRange)+0.01.*range(Settings.TimeRange), ...
-       0.99.*range(Settings.HeightRange)-min(Settings.HeightRange), ...
+       0.05.*range(Settings.HeightRange)-min(Settings.HeightRange), ...
        [num2str(Years(iYear)-1),'/',num2str(Years(iYear)-2000),', ',num2str(min(Data.Settings.LatRange)),'N-',num2str(max(Data.Settings.LatRange)),'N mean' ], ...
        'fontsize',18,'verticalalignment','top')
   
   %SSW peak indicators
-  if Years(iYear) == 2019;
-    plot(2,25,'v','color','k','markerfacecolor','k','markersize',10)
-    plot([2,2],[25,30],'k-','linewi',5,'clipping','off')
-    text(2.3,27,'SSW')
-  end   
   if Years(iYear) == 2021
-    plot(5,25,'v','color','k','markerfacecolor','k','markersize',10)
-    plot([5,5],[25,28],'k-','linewi',5,'clipping','off')
-    text(5.5,26,'SSW')
+    plot(5,7,'^','color','k','markerfacecolor','k','markersize',10)
+    plot([5,5],[2,7],'k-','linewi',5,'clipping','off')
+    text(6,5,'SSW')
   end
 
   
-%   if iYear == 1; set(gca,'xaxislocation','top'); end
+  if iYear == 1; set(gca,'xaxislocation','top'); end
     
-% %   %month labelling
-% % %   if iYear < numel(Years)
-% %     yLimits = get(gca,'YLim');
-% %     MonthPoints = [-61,-31,0,31,59];
-% %     Names = {'Nov','Dec','Jan','Feb'};
-% %     for iMonth=2:1:numel(MonthPoints)
-% %       plot(MonthPoints([iMonth-1,iMonth])+[1,-1], ...
-% %         min(yLimits)-0.08.*range(yLimits).*[1,1], ...
-% %         'k-','clipping','off')
-% %       plot(MonthPoints([iMonth-1,iMonth])+[1,-1].*11, ...
-% %         min(yLimits)-0.08.*range(yLimits).*[1,1], ...
-% %         'w-','clipping','off')
-% %       plot(MonthPoints(iMonth-1),min(yLimits)-0.08.*range(yLimits),'ks','markerfacecolor','k','clipping','off','markersize',10)
-% %       plot(MonthPoints(iMonth  ),min(yLimits)-0.08.*range(yLimits),'ks','markerfacecolor','k','clipping','off','markersize',10)
-% %       text(mean(MonthPoints([iMonth-1,iMonth])), ...
-% %         min(yLimits)-0.08.*range(yLimits),Names{iMonth-1}, ...
-% %         'horizontalalignment','center')
-% %     end
-% % %   end
-% %   ylim(yLimits)
+  %month labelling
+%   if iYear < numel(Years)
+    yLimits = get(gca,'YLim');
+    MonthPoints = [-61,-31,0,31,59];
+    Names = {'Nov','Dec','Jan','Feb'};
+    for iMonth=2:1:numel(MonthPoints)
+      plot(MonthPoints([iMonth-1,iMonth])+[1,-1], ...
+        min(yLimits)-0.08.*range(yLimits).*[1,1], ...
+        'k-','clipping','off')
+      plot(MonthPoints([iMonth-1,iMonth])+[1,-1].*11, ...
+        min(yLimits)-0.08.*range(yLimits).*[1,1], ...
+        'w-','clipping','off')
+      plot(MonthPoints(iMonth-1),min(yLimits)-0.08.*range(yLimits),'ks','markerfacecolor','k','clipping','off','markersize',10)
+      plot(MonthPoints(iMonth  ),min(yLimits)-0.08.*range(yLimits),'ks','markerfacecolor','k','clipping','off','markersize',10)
+      text(mean(MonthPoints([iMonth-1,iMonth])), ...
+        min(yLimits)-0.08.*range(yLimits),Names{iMonth-1}, ...
+        'horizontalalignment','center')
+    end
+%   end
+  ylim(yLimits)
   
   %overlay tropopause height
   TP = load('../06TropopauseFinding/tropopause_60N.mat');
@@ -201,7 +199,7 @@ for iYear=1:1:numel(Years)
              'YAxisLocation','right',...
              'Color','none');
   set(gca,'xtick',[],'tickdir','out')
-  set(gca,'ytick',0:10:50,'yticklabel',roundsd(h2p(0:10:50),2))
+  set(gca,'ytick',0:10:150,'yticklabel',roundsd(h2p(0:10:150),2))
   ylim(Settings.HeightRange)
   ylabel('Pressure [hPa]')
   
@@ -214,9 +212,7 @@ end
 
 %%
 %colourbar
-
+ colormap(flipud(cbrewer('div','RdYlBu',numel(-5:0.5:5)-1)))
 cb =colorbar('position',[0.05 0.33 0.02 0.33]);
-caxis([-1,1].*25);
-ticks = -20:10:20; labels = ticks; labels(labels < 0) = labels(labels <0)./2;
-cb.Label.String = ['Projected ',Settings.Var,' / ms^{-1}'];
-set(cb,'ytick',ticks,'yticklabel',labels)
+caxis([-1,1].*5);
+cb.Label.String = ['\Delta T from period mean [K]'];

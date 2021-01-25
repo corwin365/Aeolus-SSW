@@ -15,7 +15,7 @@ clearvars
 
 Settings.TimeScale = datenum(2019,1,1):1:datenum(2021,12,31); %not all days will be filled - this is fine
 Settings.LatRange  = [55,65];
-Settings.OutFile   = 'tropopause_60N.mat';
+Settings.OutFile   = 'stratopause_60N.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %create results array
@@ -32,7 +32,7 @@ for iDay=1:1:numel(Settings.TimeScale);
   
   %load file, if needed
   [y,~,~] = datevec(Settings.TimeScale(iDay));
-  FilePath = [LocalDataDir,'/corwin/era5_tropopause_',num2str(y),'.mat'];
+  FilePath = [LocalDataDir,'/corwin/era5_stratopause_',num2str(y),'.mat'];
   if strcmp(FilePath,OldFile) ~= 1;
     %do we have this data?
     if ~exist(FilePath,'file'); clear FilePath y; continue; end
@@ -46,7 +46,7 @@ for iDay=1:1:numel(Settings.TimeScale);
   if numel(ThisDay) == 0; clear ThisDay; continue; end
   InLatRange = inrange(Data.Results.Lat,Settings.LatRange);
   
-  Results(iDay,:) = p2h(nanmean(Data.Results.Tropopause(:,InLatRange,:,ThisDay),'all'));
+  Results(iDay,:) = p2h(nanmean(Data.Results.Stratopause(:,InLatRange,:,ThisDay),'all'));
   clear ThisDay InLatRange
   
   

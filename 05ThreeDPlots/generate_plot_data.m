@@ -15,7 +15,7 @@ clearvars
 Settings.DataDir     = [LocalDataDir,'/Aeolus/NC_FullQC/'];
 Settings.LatScale    = -90:2:90;
 Settings.LonScale    = 0:15:360;
-Settings.TimeScale   = [datenum(2020,12,1):1:datenum(2021,2,30)];  Settings.OutFile     = 'aeolus_data_3d_2021.mat';
+Settings.TimeScale   = [datenum(2020,12,1)-5:1:datenum(2021,2,30)];  Settings.OutFile     = 'aeolus_data_3d_2021.mat';
 % Settings.TimeScale   = [datenum(2019,12,1):1:datenum(2020,2,30)];  Settings.OutFile     = 'aeolus_data_3d_1920.mat';
 Settings.HeightScale = 0:1.5:30;
 

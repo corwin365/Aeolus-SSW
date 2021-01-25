@@ -19,9 +19,9 @@ clearvars -except Topo Map
 
 %data selection
 Settings.InFile = 'aeolus_data_3d_2021.mat';
-Settings.TimeRange = datenum(2021,1,[-6:1:14]); %plot data will be averaged over this range
+% % Settings.TimeRange = datenum(2021,1,[-6:1:14]); %plot data will be averaged over this range
 % % Settings.InFile = 'aeolus_data_3d_1920.mat';
-% % Settings.TimeRange = datenum(2020,1,[-10:2:30]); %plot data will be averaged over this range
+Settings.TimeRange = datenum(2021,1,[-30:3:50]); %plot data will be averaged over this range
 
 
 %data regridding - km from pole
