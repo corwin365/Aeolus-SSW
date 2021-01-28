@@ -33,8 +33,8 @@ Settings.DataSets         = {'Mls'};
 
 %MLS-specific settings
 Settings.Mls.DataDir      = [LocalDataDir,'/MLS/'];
-Settings.Mls.InVars       = {'T','O3','CO'};
-Settings.Mls.OutVars      = {'T','O3','CO'};
+Settings.Mls.InVars       = {'T','O3','CO','U','V'};
+Settings.Mls.OutVars      = {'T','O3','CO','U','V'};
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,6 +102,7 @@ for iDataSet=1:1:numel(Settings.DataSets)
         %load variable
         if ~isfield(Data,VarList{iVar});continue; end
         Var = Data.(VarList{iVar});
+        if numel(Var) == 0; continue; end
         
         %bin variable
         InRange = inrange(Data.Lat,Settings.LatRange);

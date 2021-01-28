@@ -11,7 +11,7 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.HeightLevel   = 17; %km
-Settings.DaysToPlot    = -30:3:50;%relative to 01/Jan
+Settings.DaysToPlot    = -30:3:25;%relative to 01/Jan
 Settings.DaysToAverage = 3; %must be odd - days centred on date of interest
 Settings.Year          = 2021;
 
@@ -98,7 +98,7 @@ clear idx YearsAll Years
 
 set(gcf,'color','w')
 clf
-subplot = @(m,n,p) subtightplot (m, n, p, 0.02,  0.03, 0.03);
+subplot = @(m,n,p) subtightplot (m, n, p, 0.02,  [0.05 0.01], 0.03);
 
 
 
@@ -143,7 +143,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   
   %overinterpolate data to one-degree grid
   xold = Data.Settings.LonScale; xnew = 0:1:360;
-  yold = Data.Settings.LatScale; ynew = -90:1:90;
+  yold = Data.Settings.LatScale; ynew = -82:1:82;
   [xold,yold] = meshgrid(xold,yold); [xnew,ynew] = meshgrid(xnew,ynew);
   U = interp2(xold,yold,U',xnew,ynew);   V = interp2(xold,yold,V',xnew,ynew);
   clear xold yold
@@ -191,7 +191,13 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 % %   %add some line contours
 % %   [c,h] = m_contour(xnew,ynew,U,[-60:10:-10,20:10:60],'edgecolor','k');
 % %   clabel(c,h);
-  
+
+  %patch over the pole
+  for iLon = -180:1:180;
+    m_patch([0,1,1,0,0]+iLon,[80,80,90,90,80],[1,1,1].*0.5,'edgecolor','none')
+  end; clear iLon
+    
+    
   %done! reproject into appropriate space.  
   m_grid('xtick',-135:45:135,'ytick',[],'fontsize',10);
   

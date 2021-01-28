@@ -3,6 +3,8 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %grid u, v and T for assessing various atmospheric parameters
+%also does operational analysis, as I added this later and didn't want to
+%rename the file
 %
 %Corwin Wright, c.wright@bath.ac.uk, 2021/01/13
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,12 +23,17 @@ Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
 Settings.Grid.HeightScale = flipud(p2h(ecmwf_prs_v2([],137))); %km
 
 %list of datasets
-Settings.DataSets         = {'Era5'};
+Settings.DataSets         = {'Era5','OpAl'};
 
-%ECMWF-specific settings 
+%ERA5-specific settings 
 Settings.Era5.DataDir     = LocalDataDir;
 Settings.Era5.InVars      = {'u','v','t'};
 Settings.Era5.OutVars     = {'U','V','T'};
+
+%OpAl-specific settings 
+Settings.OpAl.DataDir     = LocalDataDir;
+Settings.OpAl.InVars      = {'u','v','t'};
+Settings.OpAl.OutVars     = {'U','V','T'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% create storage grids
@@ -81,6 +88,10 @@ for iDataSet=1:1:numel(Settings.DataSets)
                                        Settings.Era5.DataDir,         ...
                                        Settings.Era5.InVars,          ...
                                        Settings.Era5.OutVars);
+      case 'OpAl';   Data = get_opal(  Settings.Grid.TimeScale(iDay), ...
+                                       Settings.Era5.DataDir,         ...
+                                       Settings.Era5.InVars,          ...
+                                       Settings.Era5.OutVars);                                     
       otherwise; disp('Dataset not in valid list. Stopping'); stop; 
     end
     

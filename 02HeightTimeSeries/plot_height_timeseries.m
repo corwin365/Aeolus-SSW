@@ -13,18 +13,37 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %vars to plot. Up to two - more will not be plotted
-%dynamics plot
-Settings.Vars   = {'T','U'};
-Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-Settings.YRanges = [0,90; 0,30];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% % % %chem\istry plot
-% % % Settings.Vars   = {'O','C'};
-% % % Settings.Units  = {'Ozone Anomaly [ppm]','Carbon Monoxide Anomaly [ppm]'};
-% % % Settings.YRanges = [0,90;0,90];
+%T - temperature
+%U - Aeolus U
+%V - Aeolus V
+%C - MLS carbon monoxide
+%O - MLS ozone
+%u - MLS U
+%v - MLS V
+%for the first three, ERA5 equivalents are also available by changing
+%Settings.Source to 1, and diffs from ERA5 by setting it to 2.
+
+%MLS-only dynamics plot from surface to thermosphere
+Settings.Vars   = {'T','u'};
+Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
+Settings.YRanges = [0,90; 0,90];
+
+% % %MLS-Aeolus T-U plot from surface to 30km.
+% % Settings.Vars   = {'T','U'};
+% % Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
+% % Settings.YRanges = [0,30; 0,30];
+
+% % %chemistry plot from surface to 90km
+% % Settings.Vars   = {'O','C'};
+% % Settings.Units  = {'O_3 Anomaly [ppm]','CO Anomaly [ppm]'};
+% % Settings.YRanges = [0,90;0,90];
+
+%other settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %data source?
-%only '1' works for CO and O3
 Settings.Source = 1; %1 is obs, 2 is model, 3 is difference (obs-model)
 
 %time range
@@ -39,24 +58,29 @@ Settings.SmoothSize = [3,1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %load files
-Data.Mls    = load('zm_data_mls.mat');
+Data.MlsT   = load('zm_data_mls_6090.mat');
+Data.MlsW   = load('zm_data_mls_5565.mat');
 Data.Aeolus = load('zm_data_aeolus.mat');
 Data.Era5T  = load('zm_data_era5_6090.mat');
 Data.Era5W  = load('zm_data_era5_5565.mat');
 
 %bad day in MLS data due to only partial coverage skewing average -
 %remove and then take mean of day before and day after
-BadDay = find(Data.Mls.Settings.Grid.TimeScale == datenum(2020,1,359));
-Data.Mls.Results.Data(:,BadDay,:) = NaN;
-Data.Mls.Results.Data(:,BadDay,:) = mean(Data.Mls.Results.Data(:,[-1,1]+BadDay,:),2);
+BadDay = find(Data.MlsT.Settings.Grid.TimeScale == datenum(2020,1,359));
+Data.MlsT.Results.Data(:,BadDay,:) = NaN;
+Data.MlsT.Results.Data(:,BadDay,:) = mean(Data.MlsT.Results.Data(:,[-1,1]+BadDay,:),2);
+Data.MlsW.Results.Data(:,BadDay,:) = NaN;
+Data.MlsW.Results.Data(:,BadDay,:) = mean(Data.MlsW.Results.Data(:,[-1,1]+BadDay,:),2);
 clear BadDay
 
 
 
-%pull out each variable
-Obs.T.Data = squeeze(Data.Mls.Results.Data(   1,:,:)); Obs.T.Grid = Data.Mls.Settings.Grid;    Obs.T.Range = Data.Mls.Settings.LatRange;    Obs.T.Source = 'MLS';
-Obs.O.Data = squeeze(Data.Mls.Results.Data(   2,:,:)); Obs.O.Grid = Data.Mls.Settings.Grid;    Obs.O.Range = Data.Mls.Settings.LatRange;    Obs.O.Source = 'MLS';
-Obs.C.Data = squeeze(Data.Mls.Results.Data(   3,:,:)); Obs.C.Grid = Data.Mls.Settings.Grid;    Obs.C.Range = Data.Mls.Settings.LatRange;    Obs.C.Source = 'MLS';
+%pull out each variable. NOTE CASE SENSITIVITY
+Obs.T.Data = squeeze(Data.MlsT.Results.Data(  1,:,:)); Obs.T.Grid = Data.MlsT.Settings.Grid;   Obs.T.Range = Data.MlsT.Settings.LatRange;   Obs.T.Source = 'MLS';
+Obs.O.Data = squeeze(Data.MlsT.Results.Data(  2,:,:)); Obs.O.Grid = Data.MlsT.Settings.Grid;   Obs.O.Range = Data.MlsT.Settings.LatRange;   Obs.O.Source = 'MLS';
+Obs.C.Data = squeeze(Data.MlsT.Results.Data(  3,:,:)); Obs.C.Grid = Data.MlsT.Settings.Grid;   Obs.C.Range = Data.MlsT.Settings.LatRange;   Obs.C.Source = 'MLS';
+Obs.u.Data = squeeze(Data.MlsW.Results.Data(  4,:,:)); Obs.u.Grid = Data.MlsW.Settings.Grid;   Obs.u.Range = Data.MlsW.Settings.LatRange;   Obs.u.Source = 'MLS';
+Obs.v.Data = squeeze(Data.MlsW.Results.Data(  5,:,:)); Obs.v.Grid = Data.MlsW.Settings.Grid;   Obs.v.Range = Data.MlsW.Settings.LatRange;   Obs.v.Source = 'MLS';
 Obs.U.Data = squeeze(Data.Aeolus.Results.Data(1,:,:)); Obs.U.Grid = Data.Aeolus.Settings.Grid; Obs.U.Range = Data.Aeolus.Settings.LatRange; Obs.U.Source = 'Aeolus';
 Obs.V.Data = squeeze(Data.Aeolus.Results.Data(2,:,:)); Obs.V.Grid = Data.Aeolus.Settings.Grid; Obs.V.Range = Data.Aeolus.Settings.LatRange; Obs.V.Source = 'Aeolus';
 ReA.T.Data = squeeze(Data.Era5T.Results.Data( 3,:,:)); ReA.T.Grid = Data.Era5T.Settings.Grid;  ReA.T.Range = Data.Era5T.Settings.LatRange;  ReA.T.Source = 'ERA5';
@@ -71,8 +95,8 @@ clear Data
 
 Clim = load('zm_data_mls_clim.mat');
 Obs.T.Data = Obs.T.Data - squeeze(Clim.Results.Data(1,:,:));
-% Obs.O.Data = Obs.O.Data - squeeze(Clim.Results.Data(2,:,:));
-% Obs.C.Data = Obs.C.Data - squeeze(Clim.Results.Data(3,:,:));
+Obs.O.Data = Obs.O.Data - squeeze(Clim.Results.Data(2,:,:));
+Obs.C.Data = Obs.C.Data - squeeze(Clim.Results.Data(3,:,:));
 clear Clim
 
 
@@ -131,36 +155,26 @@ for iVar=1:1:2;
   
   %get data
   Var = Vars.(['Var',num2str(iVar)]);
-
-  %colour levels
-  if strcmp(Settings.Vars{iVar},'U') |  strcmp(Settings.Vars{iVar},'V')
-    ColourLevels = [-30:2.5:30];
-    ColourRange  = [-30,30];
-    LineLevels   = [-100:5:100];
-  elseif strcmp(Settings.Vars{iVar},'T')
-    ColourLevels = -25:2.5:25;
-    ColourRange  = [-25,25];
-    LineLevels   = [-100:10:-30,-20:5:20,30:10:100];
-  elseif strcmp(Settings.Vars{iVar},'O')
-    Var.Data = Var.Data.*1e6;
-    ColourLevels = -1:0.1:1;
-    ColourRange  = [-1,1];
-    LineLevels   = -10:0.5:10;
-  elseif strcmp(Settings.Vars{iVar},'C')
-    Var.Data = Var.Data.*1e6;
-    ColourLevels = -3:0.25:3;
-    ColourRange  = [-3,3];
-    LineLevels   = -10:1:10;
-  else
-    disp('Colour levels not specified'); stop
+  
+  %scale data if units are weird
+  if     strcmp(Settings.Vars{iVar},'O'); Var.Data = Var.Data.*1e6;
+  elseif strcmp(Settings.Vars{iVar},'C'); Var.Data = Var.Data.*1e6;
   end
   
-  %scale down ranges if difference plots
-  if Settings.Source == 3;
-    ColourLevels = round(ColourLevels./4);
-    LineLevels   = round(LineLevels./4);
-    ColourRange  = round(ColourRange./4);
+  %choose colour levels
+  InHeightRange = inrange(Var.Grid.HeightScale,Settings.YRanges(iVar,:));
+  ColourRange  = [-1,1].*ceil(max(abs(prctile(flatten(Var.Data(:,InHeightRange)),[1,99]))));
+  %for long ranges, round off the colourbar to a more sensible multiplier,
+  %to make the levels more human-readable
+  if     max(ColourRange) > 50; ColourRange = round(ColourRange./20).*20;
+  elseif max(ColourRange) > 20; ColourRange = round(ColourRange./10).*10;
+  elseif max(ColourRange) > 10; ColourRange = round(ColourRange./5).*5;
   end
+  ColourLevels = linspace(ColourRange(1),ColourRange(2),30-1);
+  
+  %choose line levels. extend line levels out beyond the colour levels, for extrema
+  LineLevels   = linspace(ColourRange(1),ColourRange(2),10-1);
+  LineLevels = mean(diff(LineLevels)).*(-100:1:100);
   
   %create axes
   s = subplot(2,1,iVar);
@@ -202,9 +216,9 @@ for iVar=1:1:2;
 
   %overlay tropopause and stratopause heights
   TP = load('../06TropopauseFinding/tropopause_60N.mat');
-  plot(TP.Time,TP.Height,'linestyle','-.','linewi',2,'color',[0.5,0.25,1])
+  plot(TP.Time,TP.Height,'linestyle','-.','linewi',2,'color',[0,0.5,0])
   SP = load('../06TropopauseFinding/stratopause_60_90N.mat');
-  plot(SP.Time,smoothn(SP.Height,[3,1]),'linestyle','-.','linewi',2,'color',[0,0.5,0])
+  plot(SP.Time,smoothn(SP.Height,[3,1]),'linestyle','-.','linewi',2,'color',[0.5,0.25,1])
   clear SP TP
   
   %tidy axes
@@ -218,12 +232,16 @@ for iVar=1:1:2;
   
   %descriptive label
   xlim = get(gca,'xlim'); ylim = get(gca,'ylim');
-  if max(Settings.YRanges(iVar,:)) > 30; ypos = 0.05; else ypos = 0.95; end
+  if max(Settings.YRanges(iVar,:)) > 30; ypos = 0.05;
+  elseif ~strcmp(Var.Source,'MLS')       ypos = 0.95;
+  else;                                  ypos = 0.05; end
   text(min(xlim)+0.01*range(xlim),min(ylim)+ypos.*range(ylim), ...
        ['(',Letters(iVar),') ',Var.Source,', ',num2str(Var.Range(1)),'-',num2str(Var.Range(2)),'N mean'])
+  
+  
+  %in the 0-90km plots, add a line representing the top of the 30km plots
+  if max(ylim) > 30; plot(xlim,[1,1].*30,'k--');end
   clear xlim ylim ypos
-  
-  
 
   %second set of axes (pressure and SSW-relative days)
   %done last as this affects all subsequent positioning
@@ -233,7 +251,7 @@ for iVar=1:1:2;
              'YAxisLocation','right',...
              'Color','none', ...
              'tickdir','out');
-  axis([Settings.TimeRange+[-3.25,0], Settings.YRanges(iVar,:)])  %I have no idea what the 3.25 day shift is - plotting bug?!? - but this makes the top and bottom axes align perfectly          
+  axis([Settings.TimeRange+[-2.9,0], Settings.YRanges(iVar,:)])  %I have no idea what multi-day shift is - plotting bug?!? - but this makes the top and bottom axes align perfectly          
   set(gca,'xtick',datenum(2021,1,5+(-100:10:100)), ...
           'xticklabel',-100:10:100)  
   if iVar==2;set(gca,'xaxislocation','top'); xlabel('Days since major SSW commenced'); end
