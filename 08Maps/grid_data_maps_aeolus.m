@@ -13,8 +13,8 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.DataDir     = [LocalDataDir,'/Aeolus/NC_FullQC/'];
-Settings.LatScale    = -0:5:90;
-Settings.LonScale    = 0:30:360;
+Settings.LatScale    = -20:2:90;
+Settings.LonScale    = 0:20:360;
 Settings.TimeScale   = [...%datenum(2018,12,10):1:datenum(2019,1,20)-1, ... 
                         ...%datenum(2019,12,10):1:datenum(2020,1,20)-1, ...
                         datenum(2020,11,1):1:datenum(2021,3,1)-1];
@@ -35,8 +35,8 @@ Results.V = Results.HLOS;
               
 %working variables used throughout
 [xi,yi,zi] = meshgrid(Settings.LonScale,Settings.LatScale,Settings.HeightScale);
-InVars  = {'Rayleigh_HLOS_wind_speed','Zonal_wind_projection','Meridional_wind_projection'};
-OutVars = {'HLOS','U','V'};
+InVars  = {'Zonal_wind_projection','Meridional_wind_projection'};
+OutVars = {'U','V'};
   
               
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

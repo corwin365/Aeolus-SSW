@@ -24,11 +24,11 @@ end
 %find all MLS files for the day
 [yy,~,~]      = datevec(Date);
 dd            = date2doy(Date);
-FileNames.T   = wildcardsearch(DataDir,['*Temperature*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
-FileNames.O3  = wildcardsearch(DataDir,[         '*O3*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
-FileNames.CO  = wildcardsearch(DataDir,[         '*CO*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
-FileNames.GPH = wildcardsearch(DataDir,[        '*GPH*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
-
+FileNames.T   = wildcardsearch([DataDir,  '/T/',sprintf('%04d',yy)],['*Temperature*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
+FileNames.O3  = wildcardsearch([DataDir, '/O3/',sprintf('%04d',yy)],[         '*O3*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
+FileNames.CO  = wildcardsearch([DataDir, '/CO/',sprintf('%04d',yy)],[         '*CO*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
+FileNames.GPH = wildcardsearch([DataDir,'/GPH/',sprintf('%04d',yy)],[        '*GPH*',sprintf('%04d',yy),'d',sprintf('%03d',dd),'*']);
+clear yy dd
 
 %temperature is the baseline, always load it.
 if numel(FileNames.T) == 0; return; end
@@ -38,6 +38,7 @@ if numel(Data.T.L2gpValue) == 0; Data.T = get_MLS(FileNames.T{1},'Temperature_St
 
 
 %load other variables if requested
+DoneWind = 0;
 for iVar=1:1:numel(InVars)
   
   if strcmp(InVars{iVar},'T')
@@ -68,12 +69,58 @@ for iVar=1:1:numel(InVars)
     Data.CO.L2gpValue(Data.T.Pressure < 0.001) = NaN;
     Data.CO.L2gpValue(Data.T.Pressure > 215)   = NaN;
     
+    
+  elseif strcmp(InVars{iVar},'U') | strcmp(InVars{iVar},'V')
+    %U and V are calculated together, and this is relatively slow
+    %so, if we ask for both, only do it once and save the time
+    if DoneWind ==1; continue; end
+    
+    %Ok. First, get GPH
+    if numel(FileNames.GPH) == 0;Data.GPH.L2gpValue = Data.T.L2gpValue.*NaN; continue; end    
+    if ~exist(FileNames.GPH{1},'file'); Data.GPH.L2gpValue = Data.T.L2gpValue.*NaN; continue; end    
+    Data.GPH = get_MLS(FileNames.GPH{1},'GPH');
+    Data.GPH.L2gpValue(Data.GPH.Pressure > 261)   = NaN;    
+    
+    %now, grid the GPH in 3D
+    [xi,yi,zi] = meshgrid(-180:20:180, ...
+                           -90: 5: 90, ...
+                           1:2:numel(Data.GPH.Pressure));
+    [lon,~] = meshgrid(Data.GPH.Longitude,p2h(Data.GPH.Pressure));
+    [lat,z] = meshgrid( Data.GPH.Latitude,p2h(Data.GPH.Pressure));  
+    zz = bin2matN(3,lon,lat,z,Data.GPH.L2gpValue,xi,yi,zi);
+    zz = zz(:,1:end-1,:);
+    zz = zz(1:end-1,:,:);
+    
+    %compute u and v
+    CalcVars.LonScale  = -180:20:180-20;
+    CalcVars.LatScale  =  -90: 5: 90-5;
+    CalcVars.GPH       = zz;
+    [u,v,u_lat,v_lon] = compute_geostrophic_wind(CalcVars);
+
+    %interpolate to the measurement locations (including shifting z-values
+    %to bin-centre to support interpolation within 3d volumes - lat and lon
+    %already shifted)
+    zo = [p2h(Data.GPH.Pressure(2:2:end));max(p2h(Data.GPH.Pressure(2:2:end)))+mean(diff(p2h(Data.GPH.Pressure(2:2:end))))];
+    I.U = griddedInterpolant({u_lat,CalcVars.LonScale,zo},u);
+    I.V = griddedInterpolant({CalcVars.LatScale,v_lon,zo},v);
+    clear xi yi zi lon lat z zz CalcVars u v u_lat v_lon zo
+    
+    [lon,~] = meshgrid(Data.GPH.Longitude,p2h(Data.GPH.Pressure));
+    [lat,z] = meshgrid( Data.GPH.Latitude,p2h(Data.GPH.Pressure));
+    
+    Data.U.L2gpValue = I.U(double(lat),double(lon),z);
+    Data.V.L2gpValue = I.V(double(lat),double(lon),z); 
+    clear lon lat z I
+    DoneWind = 1;
+    
+    
   else
     disp('Dataset not specified in routine')
     stop
   end
       
 end
+clear DoneWind
 
 
 [~,p] = meshgrid(Data.T.Latitude,p2h(Data.T.Pressure));
@@ -92,7 +139,9 @@ clear Z Time
 
 
 for iVar=1:1:numel(InVars)
-  Mls.(OutVars{iVar}) = flatten(Data.(InVars{iVar}).L2gpValue);
+  if isfield(Data,InVars{iVar})
+    Mls.(OutVars{iVar}) = flatten(Data.(InVars{iVar}).L2gpValue);
+  end
 end
 
 

@@ -13,9 +13,15 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %general
-Settings.OutFile          = 'zm_data_mls_5565.mat'; %change '5565' to '6090' for polar cap analysis and also change latrange below accoridngly
+
+
+
+
 
 %regionalisation
+% Settings.OutFile          = 'zm_data_mls_6090.mat';
+% Settings.LatRange         = [60,90];
+Settings.OutFile          = 'zm_data_mls_5565.mat'; 
 Settings.LatRange         = [55,65];
 Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
 Settings.Grid.HeightScale = [10:4:50,54:6:120]; %km
@@ -99,7 +105,7 @@ for iDataSet=1:1:numel(Settings.DataSets)
       if numel(Var) == 0; continue; end
       
       %bin variable
-       InRange = inrange(Data.Lat,Settings.LatRange);
+      InRange = inrange(Data.Lat,Settings.LatRange);
       zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale,'@nanmean');
 
       %store it

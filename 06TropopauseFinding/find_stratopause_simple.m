@@ -72,10 +72,10 @@ for iDay=1:1:numel(Settings.TimeScale)
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 
   %interpolate the data to a regular 1km height grid between
-  %0 and 80km altitude
+  %25 and 80km altitude
   
   OldZ = p2h(Prs);
-  NewZ = 0:1:80;
+  NewZ = 25:1:80;
   
   sz = size(T);
   T = reshape(T,sz(1)*sz(2),sz(3));
@@ -86,7 +86,7 @@ for iDay=1:1:numel(Settings.TimeScale)
 
   %find maximum in each profile
   [~,idx] = max(Ts,[],2);
-  
+
   %check 5 levels above and below:
     %5 levels above must have -ve lapse rate
     %5 levels below must have +ve lapse rate
@@ -96,8 +96,6 @@ for iDay=1:1:numel(Settings.TimeScale)
   
   Passed = zeros(sz(1)*sz(2),1);
   for iProf=1:1:size(dTdZ,1)
-    
-    if NewZ(idx(iProf)) < 25; continue; end %must be above 25km
     
     Above = idx(iProf)+1:1:idx(iProf)+5; Above = Above(Above > 0 & Above < size(NewZ,2));
     Below = idx(iProf)-5:1:idx(iProf)-1; Below = Below(Below > 0 & Below < size(NewZ,2));    
@@ -120,6 +118,7 @@ for iDay=1:1:numel(Settings.TimeScale)
   Stratopause(Passed == 1) = h2p(NewZ(idx));
   Stratopause = reshape(Stratopause,sz(1),sz(2));
     
+  
   %save
   if ~exist('Results');
     Results.Stratopause = repmat(Stratopause,1,1,1,numel(Settings.TimeScale)).*NaN;

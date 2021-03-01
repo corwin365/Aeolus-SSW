@@ -1,4 +1,4 @@
-clearvars
+eclearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,7 +17,8 @@ Settings.Heights    = [22,15];
 Settings.DataSets   = {'Aeolus','MLS','OpAl','ERA5'}; %first dataset will be used as correlation baseline
 Settings.Colours    = {[57,106,177]./255,[218,124,48]./255,[204,37,41]./255,[1,.5,.5]};
 Settings.LineStyles = {'-','-','-',':'};
-Settings.TimeScale  = datenum(2020,11,1):1:datenum(2021,3,1);
+Settings.TimeScale  = datenum(2020,12,1):1:datenum(2021,3,1);
+Settings.SmoothSize = 3; %days
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% get data and inteprolate onto common scale
@@ -67,8 +68,14 @@ for iDS=1:1:numel(Settings.DataSets)
 end; clear iDS
 
 %bad point in aeolus due to partial day. mention in paper.
-U(1,1,8) = NaN;
+U(1,1,8) = nanmean(U(1,1,[7,9]),3);
 
+%bad point in MLS due to partial day. mention in paper
+U(2,:,54) = nanmean(U(2,:,[53,55]),3);
+
+
+%smooth?
+U = smoothn(U,[1,1,Settings.SmoothSize]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plot data
@@ -129,14 +136,14 @@ for iLevel=1:1:numel(Settings.Heights)
     else CorrText = ''; end
       
     
-    plot(max(get(gca,'xlim'))-[0.32,0.26].*range(get(gca,'xlim')), ...
-         [1,1].*max(get(gca,'ylim'))-0.09.*iDS.*range(get(gca,'ylim')), ...
+    plot(max(get(gca,'xlim'))-[0.58,0.51].*range(get(gca,'xlim')), ...
+         [1,1].*max(get(gca,'ylim'))-0.07.*iDS.*range(get(gca,'ylim')), ...
          '-','color',Settings.Colours{iDS},'linewi',3,'linestyle',Settings.LineStyles{iDS})
-    text(max(get(gca,'xlim'))-0.25.*range(get(gca,'xlim')), ...
-         max(get(gca,'ylim'))-0.09.*iDS.*range(get(gca,'ylim')), ...
+    text(max(get(gca,'xlim'))-0.5.*range(get(gca,'xlim')), ...
+         max(get(gca,'ylim'))-0.07.*iDS.*range(get(gca,'ylim')), ...
          Settings.DataSets{iDS},'color',Settings.Colours{iDS})
-    text(max(get(gca,'xlim'))-0.18.*range(get(gca,'xlim')), ...
-         max(get(gca,'ylim'))-0.09.*iDS.*range(get(gca,'ylim')), ...
+    text(max(get(gca,'xlim'))-0.45.*range(get(gca,'xlim')), ...
+         max(get(gca,'ylim'))-0.07.*iDS.*range(get(gca,'ylim')), ...
          CorrText,'color',Settings.Colours{iDS})       
   end
      

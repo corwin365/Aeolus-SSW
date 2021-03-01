@@ -14,8 +14,8 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.TimeScale = datenum(2019,1,1):1:datenum(2021,12,31); %not all days will be filled - this is fine
-Settings.LatRange  = [55,65];
-Settings.OutFile   = 'stratopause_60N.mat';
+Settings.LatRange  = [60,90];
+Settings.OutFile   = 'stratopause_6090N.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %create results array

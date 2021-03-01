@@ -31,7 +31,7 @@ Settings.Aeolus.OutVars   = {'U','V'};
 
 %MLS-specific settings
 Settings.Mls.DataDir      = [LocalDataDir,'/MLS/'];
-Settings.Mls.InVars       = {'L2gpValue'};
+Settings.Mls.InVars       = {'T'};
 Settings.Mls.OutVars      = {'T'};
 
 %ECMWF-specific settings 

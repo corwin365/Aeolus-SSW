@@ -1,9 +1,9 @@
 clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%plot time series of zonal mean Aeolus winds
+%plot individual frames of Aeolus winds, so ESA can merge into an animation
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/06
+%Corwin Wright, c.wright@bath.ac.uk, 2021/02/02
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -11,30 +11,28 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.HeightLevel   = 17; %km
-Settings.DaysToPlot    = -30:5:60;%relative to 01/Jan
-Settings.DaysToAverage = 5; %must be odd - days centred on date of interest
+Settings.DaysToPlot    = -60:1:35;%relative to 01/Jan
+Settings.DaysToAverage = 3; %must be odd - days centred on date of interest
 Settings.Year          = 2021;
 
-%plotting
-Settings.Rows = 3;
 
 %how much should we scale up v?
 Settings.VFactor = 8;
 
 %quiver spacing
-Settings.QuivSpace = [5,20]; %degrees lat/lon
+Settings.QuivSpace = [5,20].*4; %degrees lat/lon
 
 %quiver scaling (how big the arrows are)
 Settings.QuivScale = 1;%.25;
 
 %smooth?
-Settings.SmoothSize = [5,3]; %degrees lat/lon
+Settings.SmoothSize = [21,13]; %degrees lat/lon
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Data = load('aeolus_maps.mat');
+Data = load('../08Maps/aeolus_maps.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters
@@ -109,11 +107,8 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   
   %create plot
   %%%%%%%%%%%%%%%%%%%%%%%%%%
-  k = k+1;
-  subplot(Settings.Rows,ceil(numel(Settings.DaysToPlot)./Settings.Rows),k)
+  clf
   m_proj('stereographic','lat',90,'long',0,'radius',45);
-%   m_proj('satellite','lat',70,'long',70,'alt',.6);
-
   
   %extract data
   %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,13 +137,10 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 % %   Empty = nansum(U,1); Empty(Empty == 0) = NaN; Empty(Empty ~= 0) = 1; Empty = repmat(Empty,size(U,1),1);
 % %   U = inpaint_nans(U);
 % %   U = U.*Empty; clear Empty
-  %fill nans
   
-
-
   %overinterpolate data to one-degree grid
-  xold = Data.Settings.LonScale; xnew = -20:1:360;
-  yold = Data.Settings.LatScale; ynew = -82:1:82;
+  xold = Data.Settings.LonScale; xnew = 0:.25:360;
+  yold = Data.Settings.LatScale; ynew = 30:.25:82;
   [xold,yold] = meshgrid(xold,yold); [xnew,ynew] = meshgrid(xnew,ynew);
   U = interp2(xold,yold,U',xnew,ynew);   V = interp2(xold,yold,V',xnew,ynew);
   clear xold yold
@@ -170,6 +162,19 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   %this is because the maximum +ve >> maximum -ve
   U(U <0) = U(U<0).*2;   V(V <0) = V(V<0).*2;
 
+%   %fill NaNs
+%   U = inpaint_nans(U);
+  
+  
+% %   
+% %   %patch under the data, for NaNs
+% %   for iLon = -180:1:180;
+% %     m_patch([0,1,1,0,0]+iLon,[20,20,90,90,20],[1,1,1].*0.5,'edgecolor','none')
+% %   end; clear iLon
+% %       
+% %   U(U == 0) = NaN;
+% %   
+  
   %plot
   m_contourf(xnew,ynew,U,-60:2.5:60,'edgecolor','none')
   m_coast('color',[1,1,1].*0);%.7);
@@ -211,27 +216,30 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 
   
   %colours
-% %   Colours = [8,48,108;9,59,124;30,108,177;97,167,210;74,151,201;223,236,247;255,255,255;255,255,210;255,232,152;254,171,73;253,105,48;223,24,29;134,0,38]./255;
-% %   Colours = interp1(linspace(0,1,size(Colours,1)),Colours,linspace(0,1,32));
   Colours = flipud(cbrewer('div','RdBu',31)); Colours(14:17,:) = 1; %this is deliberately asymmetric, as the negatives are double
 %   Colours = flipud(cbrewer('div','RdYlBu',31)); 
   colormap(Colours)
   caxis([-1,1].*30)
 
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% colourbar
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
   drawnow
+  cb1 = colorbar('northoutside','position',[0.03 0.1 0.25 0.02]);
+  cb1.Label.String = ['Eastward Wind [ms^{-1}]'];
+  ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
+  set(cb1,'xtick',ticks,'xticklabel',labels,'fontsize',10);
+
+
   
   
   drawnow
+ 
+  %export to file
+  export_fig(['output/frame_',sprintf('%04d',iDay)],'-png','-m3','-a4')
+  
   
 end
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% colourbar
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-drawnow
-cb1 = colorbar('southoutside','position',[0.06 0.06 0.15 0.02]);
-cb1.Label.String = ['U [ms^{-1}]'];
-ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
-set(cb1,'xtick',ticks,'xticklabel',labels);

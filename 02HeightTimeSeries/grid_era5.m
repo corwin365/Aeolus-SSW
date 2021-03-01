@@ -20,7 +20,8 @@ Settings.OutFile          = 'zm_data_era5_5565.mat';
 %regionalisation
 Settings.LatRange         = [55,65];
 Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
-Settings.Grid.HeightScale = flipud(p2h(ecmwf_prs_v2([],137))); %km
+Settings.Grid.HeightScale = [0;flipud(p2h(ecmwf_prs_v2([],137)))]; %km
+Settings.Grid.HeightScale = Settings.Grid.HeightScale(1:end-1); %needed due to how I handle the top edge in ecmwf_prs_v2
 
 %list of datasets
 Settings.DataSets         = {'Era5','OpAl'};
@@ -108,8 +109,10 @@ for iDataSet=1:1:numel(Settings.DataSets)
       if ~isfield(Data,VarList{iVar});continue; end
       Var = Data.(VarList{iVar});
       
+      
       %bin variable
       InRange = inrange(Data.Lat,Settings.LatRange);
+
       zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale);
 
       %store it

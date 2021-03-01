@@ -20,6 +20,13 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+%last day to plot (won't be needed in final version)
+Settings.LastDay = datenum(2021,02,17);
+
+
+
 %data
 Settings.InFile  = 'fluxes.mat';
 
@@ -29,13 +36,10 @@ Settings.LatRange = [55,75];
 Settings.Levels   = p2h([50,100,150]);
 
 %time series smoothing
-Settings.SmoothDays = 5;
+Settings.SmoothDays = 3;
 
 %normalise?
 Settings.Normalise = 1;
-
-%last day to plot (won't be needed in final version)
-Settings.LastDay = datenum(2021,01,16);
 
 %colours
 cbrew = cbrewer('qual','Set1',9);
@@ -134,9 +138,11 @@ for iLevel = 1:1:numel(Settings.Levels)
   set(gca,'xtick',datenum(2020,1:1:20,15),'xticklabel',datestr(datenum(2020,1:1:19,15),'mmm'))
   xlim([datenum(2020,[10,15],1)])    
   
-  r1 = corrcoef(HeatFlux.Obs,HeatFlux.ReA); r1 = r1(2);
-  r2 = corrcoef(HeatFlux.Hyb,HeatFlux.ReA); r2 = r2(2);
-  r3 = corrcoef(HeatFlux.NoV,HeatFlux.ReA); r3 = r3(2);
+  
+  Good = find(~isnan(HeatFlux.Obs+HeatFlux.ReA+HeatFlux.NoV+HeatFlux.Hyb));
+  r1 = corrcoef(HeatFlux.Obs(Good),HeatFlux.ReA(Good)); r1 = r1(2);
+  r2 = corrcoef(HeatFlux.Hyb(Good),HeatFlux.ReA(Good)); r2 = r2(2);
+  r3 = corrcoef(HeatFlux.NoV(Good),HeatFlux.ReA(Good)); r3 = r3(2);
   
   if Settings.Normalise == 1; ylabel('Z-Score'); ylim([-1,1].*4); end
   xLimits = get(gca,'XLim');yLimits = get(gca,'YLim');
@@ -170,9 +176,11 @@ for iLevel = 1:1:numel(Settings.Levels)
   set(gca,'xtick',datenum(2020,1:1:20,15),'xticklabel',datestr(datenum(2020,1:1:19,15),'mmm'))
   xlim([datenum(2020,[10,15],1)])  
   
-  r1 = corrcoef(MomFlux.Obs,MomFlux.ReA); r1 = r1(2);
-  r2 = corrcoef(MomFlux.Hyb,MomFlux.ReA); r2 = r2(2);
-  r3 = corrcoef(MomFlux.NoV,MomFlux.ReA); r3 = r3(2);
+
+  Good = find(~isnan(MomFlux.Obs+MomFlux.ReA+MomFlux.NoV+MomFlux.Hyb));  
+  r1 = corrcoef(MomFlux.Obs(Good),MomFlux.ReA(Good)); r1 = r1(2);
+  r2 = corrcoef(MomFlux.Hyb(Good),MomFlux.ReA(Good)); r2 = r2(2);
+  r3 = corrcoef(MomFlux.NoV(Good),MomFlux.ReA(Good)); r3 = r3(2);
   
   xLimits = get(gca,'XLim');yLimits = get(gca,'YLim');
   text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.75.*range(yLimits),['r_{obs}=',sprintf('%1.2f',r1)],'horizontalalignment','right','fontsize',10)

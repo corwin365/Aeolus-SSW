@@ -22,23 +22,28 @@ clearvars
 %O - MLS ozone
 %u - MLS U
 %v - MLS V
-%for the first three, ERA5 equivalents are also available by changing
-%Settings.Source to 1, and diffs from ERA5 by setting it to 2.
+%for the first three, OpAl equivalents are also available by changing
+%Settings.Source to 1, and diffs from OpAl by setting it to 2.
 
-%MLS-only dynamics plot from surface to thermosphere
-Settings.Vars   = {'T','u'};
-Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-Settings.YRanges = [0,90; 0,90];
-
-% % %MLS-Aeolus T-U plot from surface to 30km.
-% % Settings.Vars   = {'T','U'};
+% % %MLS-only dynamics plot from surface to thermosphere
+% % Settings.Vars   = {'T','u'};
 % % Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-% % Settings.YRanges = [0,30; 0,30];
+% % Settings.YRanges = [0,90; 0,90];
+
+%MLS-Aeolus T-U plot from surface to 30km.
+Settings.Vars   = {'T','U'};
+Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
+Settings.YRanges = [0,30; 0,30];
 
 % % %chemistry plot from surface to 90km
 % % Settings.Vars   = {'O','C'};
 % % Settings.Units  = {'O_3 Anomaly [ppm]','CO Anomaly [ppm]'};
 % % Settings.YRanges = [0,90;0,90];
+
+% % %ALL THE WIND
+% % Settings.Vars   = {'u','U'};
+% % Settings.Units  = {'Zonal Wind [ms^{-1}]','Zonal Wind [ms^{-1}]'};
+% % Settings.YRanges = [0,90; 0,30];
 
 %other settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,12 +52,20 @@ Settings.YRanges = [0,90; 0,90];
 Settings.Source = 1; %1 is obs, 2 is model, 3 is difference (obs-model)
 
 %time range
-Settings.TimeRange = [datenum(2020,11,1),datenum(2021,2,28)];
+Settings.TimeRange = [datenum(2020,11,1),datenum(2021,3,1)];
 
 %smooth the data?
-Settings.SmoothSize = [3,1;
-                       3,1]; %time units, height units - both depend on gridding choices
+Settings.SmoothSize = [1,1;
+                       1,1]; %time units, height units - both depend on gridding choices
 
+%oversample the data?
+%this is just for visual effect, to make the shapes more sinuous
+%it doesn't affect the results as it scales with the smoother above - it's
+%just equivalent to a nice-looking contour() function
+%settings this value to 1 effectively disables it - it just "resamples" the
+%data with the original sampling rate in both dimensions
+Settings.OverSampleFactor = 1;                     
+                     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,9 +96,9 @@ Obs.u.Data = squeeze(Data.MlsW.Results.Data(  4,:,:)); Obs.u.Grid = Data.MlsW.Se
 Obs.v.Data = squeeze(Data.MlsW.Results.Data(  5,:,:)); Obs.v.Grid = Data.MlsW.Settings.Grid;   Obs.v.Range = Data.MlsW.Settings.LatRange;   Obs.v.Source = 'MLS';
 Obs.U.Data = squeeze(Data.Aeolus.Results.Data(1,:,:)); Obs.U.Grid = Data.Aeolus.Settings.Grid; Obs.U.Range = Data.Aeolus.Settings.LatRange; Obs.U.Source = 'Aeolus';
 Obs.V.Data = squeeze(Data.Aeolus.Results.Data(2,:,:)); Obs.V.Grid = Data.Aeolus.Settings.Grid; Obs.V.Range = Data.Aeolus.Settings.LatRange; Obs.V.Source = 'Aeolus';
-ReA.T.Data = squeeze(Data.Era5T.Results.Data( 3,:,:)); ReA.T.Grid = Data.Era5T.Settings.Grid;  ReA.T.Range = Data.Era5T.Settings.LatRange;  ReA.T.Source = 'ERA5';
-ReA.U.Data = squeeze(Data.Era5W.Results.Data( 1,:,:)); ReA.U.Grid = Data.Era5W.Settings.Grid;  ReA.U.Range = Data.Era5W.Settings.LatRange;  ReA.U.Source = 'ERA5';
-ReA.V.Data = squeeze(Data.Era5W.Results.Data( 2,:,:)); ReA.V.Grid = Data.Era5W.Settings.Grid;  ReA.V.Range = Data.Era5W.Settings.LatRange;  ReA.V.Source = 'ERA5';
+ReA.T.Data = squeeze(Data.Era5T.Results.Data( 6,:,:)); ReA.T.Grid = Data.Era5T.Settings.Grid;  ReA.T.Range = Data.Era5T.Settings.LatRange;  ReA.T.Source = 'OpAl';
+ReA.U.Data = squeeze(Data.Era5W.Results.Data( 4,:,:)); ReA.U.Grid = Data.Era5W.Settings.Grid;  ReA.U.Range = Data.Era5W.Settings.LatRange;  ReA.U.Source = 'OpAl';
+ReA.V.Data = squeeze(Data.Era5W.Results.Data( 5,:,:)); ReA.V.Grid = Data.Era5W.Settings.Grid;  ReA.V.Range = Data.Era5W.Settings.LatRange;  ReA.V.Source = 'OpAl';
 
 clear Data
 
@@ -123,9 +136,9 @@ end
 clear iVar xi yi xj yj Vars
 
 Dif = Obs;
-Dif.T.Data = Obs.T.Data - ReA.T.Data; Dif.T.Source = '(MLS - ERA5)';
-Dif.U.Data = Obs.U.Data - ReA.U.Data; Dif.U.Source = '(Aeolus - ERA5)';
-Dif.V.Data = Obs.V.Data - ReA.V.Data; Dif.V.Source = '(Aeolus - ERA5)';
+Dif.T.Data = Obs.T.Data - ReA.T.Data; Dif.T.Source = '(MLS - OpAl)';
+Dif.U.Data = Obs.U.Data - ReA.U.Data; Dif.U.Source = '(Aeolus - OpAl)';
+Dif.V.Data = Obs.V.Data - ReA.V.Data; Dif.V.Source = '(Aeolus - OpAl)';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -161,7 +174,7 @@ for iVar=1:1:2;
   elseif strcmp(Settings.Vars{iVar},'C'); Var.Data = Var.Data.*1e6;
   end
   
-  %choose colour levels
+  %choose colour range
   InHeightRange = inrange(Var.Grid.HeightScale,Settings.YRanges(iVar,:));
   ColourRange  = [-1,1].*ceil(max(abs(prctile(flatten(Var.Data(:,InHeightRange)),[1,99]))));
   %for long ranges, round off the colourbar to a more sensible multiplier,
@@ -170,8 +183,7 @@ for iVar=1:1:2;
   elseif max(ColourRange) > 20; ColourRange = round(ColourRange./10).*10;
   elseif max(ColourRange) > 10; ColourRange = round(ColourRange./5).*5;
   end
-  ColourLevels = linspace(ColourRange(1),ColourRange(2),30-1);
-  
+  ColourLevels = linspace(ColourRange(1),ColourRange(2),33);
   %choose line levels. extend line levels out beyond the colour levels, for extrema
   LineLevels   = linspace(ColourRange(1),ColourRange(2),10-1);
   LineLevels = mean(diff(LineLevels)).*(-100:1:100);
@@ -181,19 +193,18 @@ for iVar=1:1:2;
   axis([Settings.TimeRange, Settings.YRanges(iVar,:)])  
   hold on; grid on
   
-  %smooth data
-  Bad = find(isnan(Var.Data));
-  Var.Data = smoothn(inpaint_nans(Var.Data),Settings.SmoothSize(iVar,:));
-  Var.Data(Bad) = NaN; clear Bad
   
   %overinterpolate, for visual appeal
-  t = linspace(min(  Var.Grid.TimeScale),max(  Var.Grid.TimeScale),numel(  Var.Grid.TimeScale)*10);
-  h = linspace(min(Var.Grid.HeightScale),max(Var.Grid.HeightScale),numel(Var.Grid.HeightScale)*10); 
+  t = linspace(min(  Var.Grid.TimeScale),max(  Var.Grid.TimeScale),numel(  Var.Grid.TimeScale)*Settings.OverSampleFactor);
+  h = linspace(min(Var.Grid.HeightScale),max(Var.Grid.HeightScale),numel(Var.Grid.HeightScale)*Settings.OverSampleFactor); 
   [tj,hj] = meshgrid(t,h); 
   [ti,hi] = meshgrid(Var.Grid.TimeScale+[0,diff(Var.Grid.TimeScale)./2],Var.Grid.HeightScale+[0,diff(Var.Grid.HeightScale)./2]);
   v = interp2(ti,hi,Var.Data',tj,hj)';
-  Bad = find(isnan(v)); v = smoothn(inpaint_nans(v),[9,9]); v(Bad) = NaN; %[9,9] is below the level of the [10,10] we oversampled the data by above
-  clear ti hi tj hj Bad
+  Smoother = Settings.OverSampleFactor.*Settings.SmoothSize(iVar,:);
+  if mod(Smoother(1),2) == 0; Smoother(1) = Smoother(1)+1; end
+  if mod(Smoother(2),2) == 0; Smoother(2) = Smoother(2)+1; end
+  Bad = find(isnan(v)); v = smoothn(inpaint_nans(v),Smoother); v(Bad) = NaN;
+  clear ti hi tj hj Bad Smoother Oversample
   
   %plot the data
   ToPlot = v'; ToPlot(ToPlot < min(ColourLevels)) = min(ColourLevels);
@@ -215,9 +226,9 @@ for iVar=1:1:2;
   cb.Label.String = ['Zonal Mean ',Settings.Units{iVar}];
 
   %overlay tropopause and stratopause heights
-  TP = load('../06TropopauseFinding/tropopause_60N.mat');
+  TP = load('../06TropopauseFinding/tropopause_6090N.mat');
   plot(TP.Time,TP.Height,'linestyle','-.','linewi',2,'color',[0,0.5,0])
-  SP = load('../06TropopauseFinding/stratopause_60_90N.mat');
+  SP = load('../06TropopauseFinding/stratopause_6090N.mat');
   plot(SP.Time,smoothn(SP.Height,[3,1]),'linestyle','-.','linewi',2,'color',[0.5,0.25,1])
   clear SP TP
   
@@ -251,7 +262,7 @@ for iVar=1:1:2;
              'YAxisLocation','right',...
              'Color','none', ...
              'tickdir','out');
-  axis([Settings.TimeRange+[-2.9,0], Settings.YRanges(iVar,:)])  %I have no idea what multi-day shift is - plotting bug?!? - but this makes the top and bottom axes align perfectly          
+  axis([Settings.TimeRange+[-2.58,0], Settings.YRanges(iVar,:)])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
   set(gca,'xtick',datenum(2021,1,5+(-100:10:100)), ...
           'xticklabel',-100:10:100)  
   if iVar==2;set(gca,'xaxislocation','top'); xlabel('Days since major SSW commenced'); end
