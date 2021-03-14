@@ -12,17 +12,13 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%general
-
-
-
 
 
 %regionalisation
-% Settings.OutFile          = 'zm_data_mls_6090.mat';
-% Settings.LatRange         = [60,90];
-Settings.OutFile          = 'zm_data_mls_5565.mat'; 
-Settings.LatRange         = [55,65];
+Settings.OutFile          = 'zm_data_mls_6090.mat';
+Settings.LatRange         = [60,90];
+% % Settings.OutFile          = 'zm_data_mls_5565.mat'; 
+% % Settings.LatRange         = [55,65];
 Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
 Settings.Grid.HeightScale = [10:4:50,54:6:120]; %km
 

@@ -17,7 +17,7 @@ Settings.LatScale    = -20:2:90;
 Settings.LonScale    = 0:20:360;
 Settings.TimeScale   = [...%datenum(2018,12,10):1:datenum(2019,1,20)-1, ... 
                         ...%datenum(2019,12,10):1:datenum(2020,1,20)-1, ...
-                        datenum(2020,11,1):1:datenum(2021,3,1)-1];
+                        datenum(2020,11,1):1:datenum(2021,3,5)-1];
 Settings.HeightScale = 4:2:26;
 Settings.OutFile     = 'aeolus_maps.mat';
 

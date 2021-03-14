@@ -12,14 +12,14 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Settings.DataDir     = [LocalDataDir,'/MLS/'];
+Settings.DataDir     = [LocalDataDir,'/MLS/T/'];
 Settings.LatRange    = [60,90];
 Settings.TimeScale   = [];
-for iYear=2004:1:2021;
+for iYear=2004:1:2020;
   Settings.TimeScale = [Settings.TimeScale, ...
                         datenum(iYear,11,1):1:datenum(iYear+1,4,1)-1];
 end
-Settings.HeightScale = [10:4:40]; %km
+Settings.HeightScale = 0:4:40; %km
 Settings.HourScale   = 0:8:24;
 Settings.OutFile     = 'mls_data.mat';
 
@@ -43,7 +43,7 @@ OutVars = {'T'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 textprogressbar('Gridding data ')
-for iDay=numel(Settings.TimeScale):-1:1
+for iDay=1:1:numel(Settings.TimeScale)
   
   %load MLS data for this day
   [yy,~,~] = datevec(Settings.TimeScale(iDay));
@@ -67,7 +67,7 @@ for iDay=numel(Settings.TimeScale):-1:1
   Data.T    = Data.T(   inrange(Data.Lat,Settings.LatRange));
   Data.Z    = Data.Z(   inrange(Data.Lat,Settings.LatRange));
   Data.Time = Data.Time(inrange(Data.Lat,Settings.LatRange));
-  
+
   %convert time to hours
   [~,~,~,hh,~,~] = datevec(datenum(1993,1,1,0,0,Data.Time));
   

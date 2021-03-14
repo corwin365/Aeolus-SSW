@@ -11,7 +11,7 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.HeightLevel   = 17; %km
-Settings.DaysToPlot    = -30:5:60;%relative to 01/Jan
+Settings.DaysToPlot    = -22:3:56;%relative to 01/Jan
 Settings.DaysToAverage = 5; %must be odd - days centred on date of interest
 Settings.Year          = 2021;
 
@@ -28,7 +28,7 @@ Settings.QuivSpace = [5,20]; %degrees lat/lon
 Settings.QuivScale = 1;%.25;
 
 %smooth?
-Settings.SmoothSize = [5,3]; %degrees lat/lon
+Settings.SmoothSize = [3,3]; %degrees lon/lat
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
@@ -98,7 +98,7 @@ clear idx YearsAll Years
 
 set(gcf,'color','w')
 clf
-subplot = @(m,n,p) subtightplot (m, n, p, 0.02,  [0.05 0.01], 0.03);
+subplot = @(m,n,p) subtightplot (m, n, p, 0.015,  [0.02 0.01], 0.02);
 
 
 
@@ -137,13 +137,6 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   
   %duplicate endpoint, for plotting round the globe
   U(end,:) = U(1,:);   V(end,:) = V(1,:);
-  
-  %fill NaNs. keep completely empty latitude bands empty
-% %   Empty = nansum(U,1); Empty(Empty == 0) = NaN; Empty(Empty ~= 0) = 1; Empty = repmat(Empty,size(U,1),1);
-% %   U = inpaint_nans(U);
-% %   U = U.*Empty; clear Empty
-  %fill nans
-  
 
 
   %overinterpolate data to one-degree grid
@@ -231,7 +224,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 drawnow
-cb1 = colorbar('southoutside','position',[0.06 0.06 0.15 0.02]);
+cb1 = colorbar('southoutside','position',[0.06 0.05 0.15 0.02]);
 cb1.Label.String = ['U [ms^{-1}]'];
 ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
 set(cb1,'xtick',ticks,'xticklabel',labels);

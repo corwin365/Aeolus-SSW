@@ -25,15 +25,15 @@ clearvars
 %for the first three, OpAl equivalents are also available by changing
 %Settings.Source to 1, and diffs from OpAl by setting it to 2.
 
-% % %MLS-only dynamics plot from surface to thermosphere
-% % Settings.Vars   = {'T','u'};
-% % Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-% % Settings.YRanges = [0,90; 0,90];
-
-%MLS-Aeolus T-U plot from surface to 30km.
-Settings.Vars   = {'T','U'};
+%MLS-only dynamics plot from surface to thermosphere
+Settings.Vars   = {'T','u'};
 Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-Settings.YRanges = [0,30; 0,30];
+Settings.YRanges = [0,90; 0,90];
+
+% % %MLS-Aeolus T-U plot from surface to 30km.
+% % Settings.Vars   = {'T','U'};
+% % Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
+% % Settings.YRanges = [0,30; 0,30];
 
 % % %chemistry plot from surface to 90km
 % % Settings.Vars   = {'O','C'};
@@ -262,7 +262,7 @@ for iVar=1:1:2;
              'YAxisLocation','right',...
              'Color','none', ...
              'tickdir','out');
-  axis([Settings.TimeRange+[-2.58,0], Settings.YRanges(iVar,:)])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
+  axis([Settings.TimeRange+[-3.2,0], Settings.YRanges(iVar,:)])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
   set(gca,'xtick',datenum(2021,1,5+(-100:10:100)), ...
           'xticklabel',-100:10:100)  
   if iVar==2;set(gca,'xaxislocation','top'); xlabel('Days since major SSW commenced'); end

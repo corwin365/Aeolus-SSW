@@ -23,7 +23,7 @@ clearvars
 
 
 %last day to plot (won't be needed in final version)
-Settings.LastDay = datenum(2021,02,17);
+Settings.LastDay = datenum(2021,03,5);
 
 
 
@@ -36,7 +36,7 @@ Settings.LatRange = [55,75];
 Settings.Levels   = p2h([50,100,150]);
 
 %time series smoothing
-Settings.SmoothDays = 3;
+Settings.SmoothDays = 5;
 
 %normalise?
 Settings.Normalise = 1;
@@ -146,9 +146,9 @@ for iLevel = 1:1:numel(Settings.Levels)
   
   if Settings.Normalise == 1; ylabel('Z-Score'); ylim([-1,1].*4); end
   xLimits = get(gca,'XLim');yLimits = get(gca,'YLim');
-  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.75.*range(yLimits),['r_{obs}=',sprintf('%1.2f',r1)],'horizontalalignment','right','fontsize',10)
+  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.83.*range(yLimits),['r_{obs}=',sprintf('%1.2f',r1)],'horizontalalignment','right','fontsize',10)
   text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.90.*range(yLimits),['r_{hyb}=',sprintf('%1.2f',r2)],'horizontalalignment','right','fontsize',10)
-  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.60.*range(yLimits),['r_{NoV}=',sprintf('%1.2f',r3)],'horizontalalignment','right','fontsize',10)
+  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.76.*range(yLimits),['r_{NoV}=',sprintf('%1.2f',r3)],'horizontalalignment','right','fontsize',10)
   text(min(xLimits)+0.02.*range(xLimits),min(yLimits)+0.92.*range(yLimits),['(',Letters(l),') ',num2str(h2p(Settings.Levels(iLevel))),'hPa'],'horizontalalignment','left','fontsize',15)
   text(min(xLimits)+0.02.*range(xLimits),min(yLimits)+0.05.*range(yLimits),['45N - ',num2str(Settings.LatRange(2)),'N'],'horizontalalignment','left','fontsize',12)
   text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.05.*range(yLimits),['Smoothed ',num2str(Settings.SmoothDays),' days'],'horizontalalignment','right','fontsize',12)
@@ -183,9 +183,9 @@ for iLevel = 1:1:numel(Settings.Levels)
   r3 = corrcoef(MomFlux.NoV(Good),MomFlux.ReA(Good)); r3 = r3(2);
   
   xLimits = get(gca,'XLim');yLimits = get(gca,'YLim');
-  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.75.*range(yLimits),['r_{obs}=',sprintf('%1.2f',r1)],'horizontalalignment','right','fontsize',10)
+  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.83.*range(yLimits),['r_{obs}=',sprintf('%1.2f',r1)],'horizontalalignment','right','fontsize',10)
   text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.90.*range(yLimits),['r_{hyb}=',sprintf('%1.2f',r2)],'horizontalalignment','right','fontsize',10)
-  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.60.*range(yLimits),['r_{NoV}=',sprintf('%1.2f',r3)],'horizontalalignment','right','fontsize',10)
+  text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.76.*range(yLimits),['r_{NoV}=',sprintf('%1.2f',r3)],'horizontalalignment','right','fontsize',10)
   text(min(xLimits)+0.02.*range(xLimits),min(yLimits)+0.92.*range(yLimits),['(',Letters(l),') ',num2str(h2p(Settings.Levels(iLevel))),'hPa'],'horizontalalignment','left','fontsize',15)
   text(min(xLimits)+0.02.*range(xLimits),min(yLimits)+0.05.*range(yLimits),['45N - ',num2str(Settings.LatRange(2)),'N'],'horizontalalignment','left','fontsize',12)
   text(min(xLimits)+0.99.*range(xLimits),min(yLimits)+0.05.*range(yLimits),['Smoothed ',num2str(Settings.SmoothDays),' days'],'horizontalalignment','right','fontsize',12)

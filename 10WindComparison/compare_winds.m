@@ -1,4 +1,4 @@
-eclearvars
+clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -130,7 +130,7 @@ for iLevel=1:1:numel(Settings.Heights)
       %rmsd
       RMSD = sqrt(mean((a(Good)-b(Good)).^2));
       
-      CorrText = ['r = ',sprintf('%1.2f',r),'  RMSD = ',sprintf('%1.2f',RMSD)];
+      CorrText = ['r = ',sprintf('%1.3f',r),'  RMSD = ',sprintf('%1.2f',RMSD)];
       
       clear a b Good r RMSD
     else CorrText = ''; end

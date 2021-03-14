@@ -17,8 +17,8 @@ Settings.OutFile          = 'zm_data_aeolus.mat';
 
 %regionalisation
 Settings.LatRange         = [55,65];
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
-Settings.Grid.HeightScale = [0:1:24]; %km
+Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,3,10);
+Settings.Grid.HeightScale = 0:1:24; %km
 
 %list of datasets
 Settings.DataSets         = {'Aeolus'};

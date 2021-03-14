@@ -10,7 +10,7 @@ clearvars
 % settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Settings.TimeRange   = [-62,62]; %DoY relative to 01/Jan
+Settings.TimeRange   = [-65,85]; %DoY relative to 05/Jan
 
 
 %files
@@ -24,6 +24,11 @@ Settings.Era5Data = 'era5_data.mat';
 
 Mls  = load(Settings.MlsData);
 Era5 = load(Settings.Era5Data);
+
+%shift all days by five, so we can make the data since the 5th of january
+%more easily
+Mls.Settings.TimeScale  = Mls.Settings.TimeScale-5;
+Era5.Settings.TimeScale = Era5.Settings.TimeScale-5;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters
@@ -171,8 +176,8 @@ for Level=[20,15,10,5]
     end
     
     %finally, plot the specific years of interest
-    plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-1,:,zidx)),xa),[1]),'-','color','r','linewi',2)
-%     plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-0,:,zidx)),xa),[11]),'-','color','b','linewi',2)
+    plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end,:,zidx)),xa),[1]),'-','color','r','linewi',2)
+%     plot(xa,smoothn(interp1(DaysScale,squeeze(Data(iSource,end-1,:,zidx)),xa),[11]),'-','color','b','linewi',2)
 
     
     %y-labelling
@@ -188,7 +193,7 @@ for Level=[20,15,10,5]
     %a-axes
     
     if Level == 20;
-      set(gca,'xaxislocation','top'); xlabel('Days since 1st January');
+      set(gca,'xaxislocation','top'); xlabel('Days since 5th January');
     elseif iSource ==2 && Level > 5
       set(gca,'xticklabel',{})
     elseif iSource ==1 && Level > 10
@@ -216,8 +221,8 @@ for Level=[20,15,10,5]
        
     %month labelling
     if iSource == 2 & Level > 5 | iSource ==1 & Level > 10
-      MonthPoints = [-61,-31,0,31,59];
-      Names = {'Nov','Dec','Jan','Feb'};
+      MonthPoints = [-61,-31,0,31,59,90]-5;
+      Names = {'Nov','Dec','Jan','Feb','Mar'};
       for iMonth=2:1:numel(MonthPoints)
         plot(MonthPoints([iMonth-1,iMonth])+[1,-1], ...
              min(yLimits)-0.08.*range(yLimits).*[1,1], ...
