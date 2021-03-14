@@ -15,7 +15,11 @@ clearvars -except Topo Map
 
 %data selection
 Settings.InFile = 'aeolus_data_3d_2021.mat';
-Settings.TimeRange = datenum(2021,1,[-22:3:56]); %plot data will be averaged over this range
+% Settings.TimeRange = datenum(2021,1,[-22:3:56]); %plot data will be averaged over this range
+
+Settings.TimeRange = datenum(2021,1,[-19,2,5,20,29,35,50]); %just these days
+
+
 
 %data regridding - km from pole
 Settings.XGrid = -6000:50   :6000;
@@ -34,7 +38,8 @@ Settings.SmoothSize = [5,5,1];
 
 clf
 set(gcf,'color','w')
-subplot = @(m,n,p) subtightplot (m, n, p, [0.04,0.01],  [0.10,0.03], 0.03);
+% subplot = @(m,n,p) subtightplot (m, n, p, [0.04,0.01],[0.10,0.03], 0.03);
+subplot = @(m,n,p) subtightplot (m, n, p, 0.03,  0.05,0.05);%[0.10,0.03], 0.03);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% map prep
@@ -44,7 +49,7 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.04,0.01],  [0.10,0.03], 0.03);
 [Topo,Map] = topo_etc([-179.9,179.9],[-89.9,89.9],0,0,1,0);
 
 %grid the topography onto a similar pole-centred grid as the data
-[xi,yi] = meshgrid(-6000:20:6000,-6000:20:6000);
+[xi,yi] = meshgrid(-6000:10:6000,-6000:10:6000);
 ri = quadadd(xi,yi);
 th = atan2d(xi,yi);
 [lat,lon] = reckon(89.999,0,km2deg(ri),th); %exactly 90 causes issues
@@ -73,8 +78,9 @@ for iDay=1:1:numel(Settings.TimeRange)
   
   
   %create a panel for the plot
-  subplot(3,ceil(numel(Settings.TimeRange)./3),iDay)
-  
+%   subplot(3,ceil(numel(Settings.TimeRange)./3),iDay)
+  subplot(2,ceil(numel(Settings.TimeRange)./2),iDay)  
+
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% load data, extract and overinterpolate onto a space grid
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -199,10 +205,18 @@ for iDay=1:1:numel(Settings.TimeRange)
   clear a b c h th
   
   %finalise lighting and create title
+
   camlight;camlight
   view([88,65])
-  title(datestr(Settings.TimeRange(iDay)))
-
+  if Settings.TimeRange(iDay) < datenum(2021,1,5);
+    title([datestr(Settings.TimeRange(iDay)), ...
+           ' (d',num2str(Settings.TimeRange(iDay)-datenum(2021,1,5)),')'], ...
+           'fontsize',20)
+  else
+    title([datestr(Settings.TimeRange(iDay)), ...
+           ' (d+',num2str(Settings.TimeRange(iDay)-datenum(2021,1,5)),')'], ...
+           'fontsize',20)
+  end
   
   %label a couple of longitudes so the reader can orient themselves
   plot3([4300,4700],[0,0],[1,1].*1,'k-','clipping','off'); text(4900,0,0,'90E','fontsize',10);
@@ -211,15 +225,15 @@ for iDay=1:1:numel(Settings.TimeRange)
 
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% colourbar
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%manually place a colourbar at the bottom left. This is a bit fiddly as we
-%want to make it look very specific
-Colours = [153,0,0;153,0,0;255,255,255;255,255,255;255,255,255;0,128,255;0,128,255]./255;
-colormap(flipud(Colours))
-cb1 = colorbar('southoutside','position',[0.04 0.06 0.1 0.02]);
-caxis([0,size(Colours,1)]);
-cb1.Label.String = ['U_{HLOS} [ms^{-1}]'];
-set(cb1,'xtick',[2,5],'xticklabel',[-1,1].*Settings.ColourLimit);
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % %% colourbar
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % 
+% % %manually place a colourbar at the bottom left. This is a bit fiddly as we
+% % %want to make it look very specific
+% % Colours = [153,0,0;153,0,0;255,255,255;255,255,255;255,255,255;0,128,255;0,128,255]./255;
+% % colormap(flipud(Colours))
+% % cb1 = colorbar('southoutside','position',[0.04 0.06 0.1 0.02]);
+% % caxis([0,size(Colours,1)]);
+% % cb1.Label.String = ['U_{HLOS} [ms^{-1}]'];
+% % set(cb1,'xtick',[2,5],'xticklabel',[-1,1].*Settings.ColourLimit);

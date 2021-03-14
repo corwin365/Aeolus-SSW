@@ -1,10 +1,10 @@
-clearvars
+clearvars -except CENTREDAY SSWDates iSSW
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %grid u, v and T for assessing various atmospheric parameters
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/13
+%Corwin Wright, c.wright@bath.ac.uk, 2021/03/14
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -13,20 +13,22 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %general
-Settings.OutFile          = 'zm_data_aeolus.mat';
+Settings.OutFile          = ['gridded_data_',num2str(CENTREDAY),'.mat'];
 
-%regionalisation
-Settings.LatRange         = [55,65];
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,3,10);
-Settings.Grid.HeightScale = 2:1:24; %km
+%common gridding settings
+Settings.Grid.LatScale    = -90:10:90;
+Settings.Grid.LonScale    = -180:20:180;
+Settings.Grid.TimeScale   = (-100:1:50)+CENTREDAY;
+Settings.Grid.HeightScale = 0:2:26; %km
 
 %list of datasets
-Settings.DataSets         = {'Aeolus'};
+Settings.DataSets         = {'Era5'};
 
-%Aeolus-specific settings
-Settings.Aeolus.DataDir   = [LocalDataDir,'/Aeolus/NC_FullQC/'];
-Settings.Aeolus.InVars    = {'Zonal_wind_projection','Meridional_wind_projection'};
-Settings.Aeolus.OutVars   = {'U','V'}; 
+%ECMWF-specific settings 
+Settings.Era5.DataDir     = LocalDataDir;
+Settings.Era5.InVars      = {'u','v','t'};
+Settings.Era5.OutVars     = {'U','V','T'};
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% create storage grids
@@ -46,9 +48,17 @@ end; clear iDataSet iVar VarList
 
 Results.Data = NaN(numel(Results.VarList),           ...
                    numel(Settings.Grid.TimeScale),   ...
-                   numel(Settings.Grid.HeightScale));
+                   numel(Settings.Grid.HeightScale), ...
+                   numel(Settings.Grid.LonScale),    ...
+                   numel(Settings.Grid.LatScale));
                  
 Results.Grid = Settings.Grid; %so we can just laod the "results" struct in later scripts
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% create internal-use variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[xi,yi,zi] = meshgrid(Settings.Grid.LonScale,Settings.Grid.LatScale,Settings.Grid.HeightScale);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% grid data!
@@ -90,25 +100,23 @@ for iDataSet=1:1:numel(Settings.DataSets)
     %grid the data
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
-
     VarList = Settings.(Settings.DataSets{iDataSet}).OutVars;
     for iVar=1:1:numel(VarList)
+      try
       
-      %load variable
-      if ~isfield(Data,VarList{iVar});continue; end
+      
+      %grid variable
       Var = Data.(VarList{iVar});
-      
-      %bin variable
-      InRange = inrange(Data.Lat,Settings.LatRange);
-      zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale);
-      
+      zz = bin2matN(3,Data.Lon,Data.Lat,Data.Alt,Var,xi,yi,zi,'@nanmean');
       %store it
       ThisVar = find(contains(Results.InstList,Settings.DataSets{iDataSet}) ...
                    & contains( Results.VarList,VarList{iVar}));
-      Results.Data(ThisVar,iDay,:,:,:) = zz;
+      Results.Data(ThisVar,iDay,:,:,:) = permute(zz,[3,2,1]);
       
-      %and we're done
-    end; clear iVar VarList zz Var ThisVar Data InRange
+      
+      %and we're done!
+      catch; end
+    end; clear iVar VarList zz Var ThisVar Data
 
 
     textprogressbar(iDay./numel(Settings.Grid.TimeScale).*100)

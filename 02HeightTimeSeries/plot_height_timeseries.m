@@ -25,15 +25,15 @@ clearvars
 %for the first three, OpAl equivalents are also available by changing
 %Settings.Source to 1, and diffs from OpAl by setting it to 2.
 
-%MLS-only dynamics plot from surface to thermosphere
-Settings.Vars   = {'T','u'};
-Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-Settings.YRanges = [0,90; 0,90];
-
-% % %MLS-Aeolus T-U plot from surface to 30km.
-% % Settings.Vars   = {'T','U'};
+% % %MLS-only dynamics plot from surface to thermosphere
+% % Settings.Vars   = {'T','u'};
 % % Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
-% % Settings.YRanges = [0,30; 0,30];
+% % Settings.YRanges = [0,90; 0,90];
+
+%MLS-Aeolus T-U plot from surface to 30km.
+Settings.Vars   = {'T','U'};
+Settings.Units  = {'Temperature Anomaly [K]','Zonal Wind [ms^{-1}]'};
+Settings.YRanges = [0,30; 0,30];
 
 % % %chemistry plot from surface to 90km
 % % Settings.Vars   = {'O','C'};
@@ -254,6 +254,13 @@ for iVar=1:1:2;
   if max(ylim) > 30; plot(xlim,[1,1].*30,'k--');end
   clear xlim ylim ypos
 
+  
+  %hack to disable ticks on right
+  yyaxis right;
+  set( gca, 'YTick', [] );
+  set( gca, 'YColor', 'k' );
+
+  
   %second set of axes (pressure and SSW-relative days)
   %done last as this affects all subsequent positioning
   ax1 = gca;
@@ -262,14 +269,19 @@ for iVar=1:1:2;
              'YAxisLocation','right',...
              'Color','none', ...
              'tickdir','out');
-  axis([Settings.TimeRange+[-3.2,0], Settings.YRanges(iVar,:)])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
+  axis([Settings.TimeRange+[-3.2,0], h2p(Settings.YRanges(iVar,[2,1]))])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
   set(gca,'xtick',datenum(2021,1,5+(-100:10:100)), ...
           'xticklabel',-100:10:100)  
+  set(gca,'ydir','reverse','yscale','log')  
+  if max(Settings.YRanges(:)) > 40; 
+    set(gca,'ytick',[0.001,0.01,0.1,1,10,100,1000])
+  else
+  set(gca,'ytick',[0.001,0.0032,0.01,0.032,0.1,0.32,1,3.2,10,32,100,320,1000])    
+  end
+  
+  
   if iVar==2;set(gca,'xaxislocation','top'); xlabel('Days since major SSW commenced'); end
   grid off
-  if max(Settings.YRanges(iVar,:)) < 40; set(gca,'ytick', 0:5:200,'yticklabel',roundsd(h2p( 0:5:200),2))
-  else;                                  set(gca,'ytick',0:10:200,'yticklabel',roundsd(h2p(0:10:200),2))
-  end  
   ylabel('Pressure [hPa]')
 
   

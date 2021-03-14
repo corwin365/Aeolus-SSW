@@ -19,7 +19,7 @@ Settings.OutFile          = 'zm_data_era5_5565.mat';
 
 %regionalisation
 Settings.LatRange         = [55,65];
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
+Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,3,31);
 Settings.Grid.HeightScale = [0;flipud(p2h(ecmwf_prs_v2([],137)))]; %km
 Settings.Grid.HeightScale = Settings.Grid.HeightScale(1:end-1); %needed due to how I handle the top edge in ecmwf_prs_v2
 

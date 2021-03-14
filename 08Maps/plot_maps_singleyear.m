@@ -111,7 +111,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   %%%%%%%%%%%%%%%%%%%%%%%%%%
   k = k+1;
   subplot(Settings.Rows,ceil(numel(Settings.DaysToPlot)./Settings.Rows),k)
-  m_proj('stereographic','lat',90,'long',0,'radius',45);
+  m_proj('stereographic','lat',90,'long',90,'radius',45);
 %   m_proj('satellite','lat',70,'long',70,'alt',.6);
 
   
@@ -197,7 +197,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
     
     
   %done! reproject into appropriate space.  
-  m_grid('xtick',-135:45:135,'ytick',[],'fontsize',10,'BackgroundColor', [0.5 0.5 0.5]);
+  m_grid('xtick',[-135,-45:45:180],'ytick',[],'fontsize',10,'BackgroundColor', [0.5 0.5 0.5]);
   
   %title
   title(datestr(datenum(Settings.Year,1,Settings.DaysToPlot(iDay))))
