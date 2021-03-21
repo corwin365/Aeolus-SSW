@@ -35,7 +35,7 @@ where LocalDataDir is specified in the function "functions/LocalDataDir", YYYY i
 
 The routines were produced organically over a period of several months and bits of data in figures produced earlier were often reused in figures produced later. As a result, there are some weird cross-dependencies between figures.  Running all the data-generation routines first should avoid issues due to this. You can try running individual files if you just want one figure - just be prepared to hunt down where any missing data is coming from!
 
-1. Run the Python scripts in 01AeolusConversion to convert the Aeolus data from their original ESA DBL format to a slimmed-down netCDF format used throughout this study
+1. Run the Python scripts in 01AeolusConversion to convert the Aeolus data from their original ESA DBL format to a slimmed-down netCDF format used throughout this study. This will require some small manual tweaks for your filesystem throughout the programme, that will not carry over to the rest of the Matlab analyses - keep prodding until it works!
 
 2. Run:
  - 02HeightTimeSeries/grid_aeolus.m
