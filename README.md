@@ -3,7 +3,7 @@
 
 This is the code underlying Wright et al (2021), a manuscript submitted to Weather and Climate Dynamics in March 2021 which uses data from Aeolus, MLS and ERA5 to study the January 2021 Sudden Stratospheric Warming.
 
-This release only contains code I have produced as lead-author. This excludes the processing chains used to produce the data for Figures 5, 10, and 11, and the plotting code for Figure 11.
+This release only contains code I have produced as lead-author or functions used in this code. This excludes the processing chains used to produce the data for Figures 5, 10, and 11, and the plotting code for Figure 11.
 
 
 Most of the code is written in Matlab. All functions needed to produce the Figures should be included in the directory "functions/", but in the event I've made an error any missing functions are very likely to be available from https://github.com/corwin365/MatlabFunctions. 
