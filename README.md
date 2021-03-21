@@ -1,16 +1,16 @@
 # Aeolus January 2021 SSW
 
 
-This is the code underlying Wright et al (2021), a manuscript submitted to Weaher and Climate Dynamics in March 2021 which uses data from Aeolus, MLS and ERA5 to study the January 2021 Sudden Stratospheric Warming.
+This is the code underlying Wright et al (2021), a manuscript submitted to Weather and Climate Dynamics in March 2021 which uses data from Aeolus, MLS and ERA5 to study the January 2021 Sudden Stratospheric Warming.
 
-This release only contains code I have produced as lead-author. This excludes the processing chains used to produce the data for Figures 5 10 and 11, and the plotting code for Figure 11.
+This release only contains code I have produced as lead-author. This excludes the processing chains used to produce the data for Figures 5, 10, and 11, and the plotting code for Figure 11.
 
 
-Most of the code is written in Matlab. I have checked and all functions needed to produce the Figures should be included in the directory "functions/", but in the event I've made an error any missing functions are very likely to be available from https://github.com/corwin365/MatlabFunctions. 
+Most of the code is written in Matlab. All functions needed to produce the Figures should be included in the directory "functions/", but in the event I've made an error any missing functions are very likely to be available from https://github.com/corwin365/MatlabFunctions. 
 
 The code is presented as-is at time of submission, and has not been specifically tidied for upload due to time constraints - my main aim here is to produce an audit-trail for our work rather than a solid package people can use for their own work. I am very happy to help as much as I can if you're trying to decode a particular bit of code though, so get in touch if you're stuck!
 
-Finally, for all figures manual modification to the layout, including adding contextual lines and rearranging panels into figures, was carried out in image-editing software. So: the above files will not produce final versions as seen in the paper - although usually it will be very close.
+Finally, for all figures manual modifications to the layout, including adding contextual lines and rearranging panels into figures, was carried out in image-editing software. So: the above files will not produce final versions as seen in the paper - although usually it will be very close.
 
 
 
@@ -18,8 +18,9 @@ Finally, for all figures manual modification to the layout, including adding con
 
 Data used were obtained from (ERA5) the Copernicus Climate Data Store (Aeolus) the ESA website and (MLS) NASA's DISC, all in standard netCDF formats as of MArch 2021. These were put in the following directories with the following naming conventions:
 
-- LocalDataDir/Aeolus/NC_FullQC/     
-   then: same name as original ESA files, with .nc suffix
+- LocalDataDir/Aeolus/DBL/     
+   then: same name as original ESA files.
+   You will need to create LocalDataDir/Aeolus/NC_FullQC/ to place the converted files
    
 - LocalDataDir/ERA5/YYYY/      
    then: era5t_YYYYdDDD.nc
@@ -32,7 +33,7 @@ where LocalDataDir is specified in the function "functions/LocalDataDir", YYYY i
 
 ### Data Generation
 
-The routines were produced organically over a period of several months and bits of data in figures produced earlier were often reused in figures produced later. As a result, there are some weird cross-dependencies between figures.  Running all the data-generation routines first should avoid issues due to this. You can try running individual files if you jsut want one figure - just be prepared to hunt down where any missing data is coming from!
+The routines were produced organically over a period of several months and bits of data in figures produced earlier were often reused in figures produced later. As a result, there are some weird cross-dependencies between figures.  Running all the data-generation routines first should avoid issues due to this. You can try running individual files if you just want one figure - just be prepared to hunt down where any missing data is coming from!
 
 1. Run the Python scripts in 01AeolusConversion to convert the Aeolus data from their original ESA DBL format to a slimmed-down netCDF format used throughout this study
 
@@ -57,7 +58,7 @@ The routines were produced organically over a period of several months and bits 
  - 07Fluxes/compute_fluxes.m
  - 08Maps/grid_data_maps_aeolus.m
  - 10WindComparison/01MlsGeostrophicWind/mls_geostrophic_wind.m
- - 12Smt_Mls/grid_mls.m
+ - 12Zmt_Mls/grid_mls.m
 
 ### Data Generation
 
