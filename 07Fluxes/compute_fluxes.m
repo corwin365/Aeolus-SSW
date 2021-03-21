@@ -18,8 +18,8 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Settings.InFile  = 'gridded_data.mat';
-Settings.OutFile = 'fluxes.mat';
+Settings.InFile  = 'gridded_data_b.mat';
+Settings.OutFile = 'fluxes_b.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% load data

@@ -19,7 +19,7 @@ Settings.Year          = 2021;
 Settings.Rows = 3;
 
 %how much should we scale up v?
-Settings.VFactor = 8;
+Settings.VFactor = 10;
 
 %quiver spacing
 Settings.QuivSpace = [5,20]; %degrees lat/lon
@@ -219,12 +219,12 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% colourbar
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-drawnow
-cb1 = colorbar('southoutside','position',[0.06 0.05 0.15 0.02]);
-cb1.Label.String = ['U [ms^{-1}]'];
-ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
-set(cb1,'xtick',ticks,'xticklabel',labels);
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % %% colourbar
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % 
+% % drawnow
+% % cb1 = colorbar('southoutside','position',[0.06 0.05 0.15 0.02]);
+% % cb1.Label.String = ['U [ms^{-1}]'];
+% % ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
+% % set(cb1,'xtick',ticks,'xticklabel',labels);

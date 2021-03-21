@@ -22,8 +22,8 @@ clearvars
 %O - MLS ozone
 %u - MLS U
 %v - MLS V
-%for the first three, OpAl equivalents are also available by changing
-%Settings.Source to 1, and diffs from OpAl by setting it to 2.
+%for the first three, ERA5 equivalents are also available by changing
+%Settings.Source to 2, and diffs from ERA5 by setting it to 3.
 
 % % %MLS-only dynamics plot from surface to thermosphere
 % % Settings.Vars   = {'T','u'};
@@ -49,7 +49,7 @@ Settings.YRanges = [0,30; 0,30];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %data source?
-Settings.Source = 1; %1 is obs, 2 is model, 3 is difference (obs-model)
+Settings.Source = 2; %1 is obs, 2 is model, 3 is difference (obs-model)
 
 %time range
 Settings.TimeRange = [datenum(2020,11,1),datenum(2021,3,1)];
@@ -96,9 +96,9 @@ Obs.u.Data = squeeze(Data.MlsW.Results.Data(  4,:,:)); Obs.u.Grid = Data.MlsW.Se
 Obs.v.Data = squeeze(Data.MlsW.Results.Data(  5,:,:)); Obs.v.Grid = Data.MlsW.Settings.Grid;   Obs.v.Range = Data.MlsW.Settings.LatRange;   Obs.v.Source = 'MLS';
 Obs.U.Data = squeeze(Data.Aeolus.Results.Data(1,:,:)); Obs.U.Grid = Data.Aeolus.Settings.Grid; Obs.U.Range = Data.Aeolus.Settings.LatRange; Obs.U.Source = 'Aeolus';
 Obs.V.Data = squeeze(Data.Aeolus.Results.Data(2,:,:)); Obs.V.Grid = Data.Aeolus.Settings.Grid; Obs.V.Range = Data.Aeolus.Settings.LatRange; Obs.V.Source = 'Aeolus';
-ReA.T.Data = squeeze(Data.Era5T.Results.Data( 6,:,:)); ReA.T.Grid = Data.Era5T.Settings.Grid;  ReA.T.Range = Data.Era5T.Settings.LatRange;  ReA.T.Source = 'OpAl';
-ReA.U.Data = squeeze(Data.Era5W.Results.Data( 4,:,:)); ReA.U.Grid = Data.Era5W.Settings.Grid;  ReA.U.Range = Data.Era5W.Settings.LatRange;  ReA.U.Source = 'OpAl';
-ReA.V.Data = squeeze(Data.Era5W.Results.Data( 5,:,:)); ReA.V.Grid = Data.Era5W.Settings.Grid;  ReA.V.Range = Data.Era5W.Settings.LatRange;  ReA.V.Source = 'OpAl';
+ReA.T.Data = squeeze(Data.Era5T.Results.Data( 3,:,:)); ReA.T.Grid = Data.Era5T.Settings.Grid;  ReA.T.Range = Data.Era5T.Settings.LatRange;  ReA.T.Source = 'ERA5';
+ReA.U.Data = squeeze(Data.Era5W.Results.Data( 1,:,:)); ReA.U.Grid = Data.Era5W.Settings.Grid;  ReA.U.Range = Data.Era5W.Settings.LatRange;  ReA.U.Source = 'ERA5';
+ReA.V.Data = squeeze(Data.Era5W.Results.Data( 2,:,:)); ReA.V.Grid = Data.Era5W.Settings.Grid;  ReA.V.Range = Data.Era5W.Settings.LatRange;  ReA.V.Source = 'ERA5';
 
 clear Data
 
@@ -136,9 +136,9 @@ end
 clear iVar xi yi xj yj Vars
 
 Dif = Obs;
-Dif.T.Data = Obs.T.Data - ReA.T.Data; Dif.T.Source = '(MLS - OpAl)';
-Dif.U.Data = Obs.U.Data - ReA.U.Data; Dif.U.Source = '(Aeolus - OpAl)';
-Dif.V.Data = Obs.V.Data - ReA.V.Data; Dif.V.Source = '(Aeolus - OpAl)';
+Dif.T.Data = Obs.T.Data - ReA.T.Data; Dif.T.Source = '(MLS - ERA5)';
+Dif.U.Data = Obs.U.Data - ReA.U.Data; Dif.U.Source = '(Aeolus - ERA5)';
+Dif.V.Data = Obs.V.Data - ReA.V.Data; Dif.V.Source = '(Aeolus - ERA5)';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -182,7 +182,9 @@ for iVar=1:1:2;
   if     max(ColourRange) > 50; ColourRange = round(ColourRange./20).*20;
   elseif max(ColourRange) > 20; ColourRange = round(ColourRange./10).*10;
   elseif max(ColourRange) > 10; ColourRange = round(ColourRange./5).*5;
+  else;                         ColourRange = [-1,1].*3;
   end
+%   ColourRange = [-1,1].*5
   ColourLevels = linspace(ColourRange(1),ColourRange(2),33);
   %choose line levels. extend line levels out beyond the colour levels, for extrema
   LineLevels   = linspace(ColourRange(1),ColourRange(2),10-1);
@@ -205,6 +207,7 @@ for iVar=1:1:2;
   if mod(Smoother(2),2) == 0; Smoother(2) = Smoother(2)+1; end
   Bad = find(isnan(v)); v = smoothn(inpaint_nans(v),Smoother); v(Bad) = NaN;
   clear ti hi tj hj Bad Smoother Oversample
+  
   
   %plot the data
   ToPlot = v'; ToPlot(ToPlot < min(ColourLevels)) = min(ColourLevels);
@@ -253,6 +256,7 @@ for iVar=1:1:2;
   %in the 0-90km plots, add a line representing the top of the 30km plots
   if max(ylim) > 30; plot(xlim,[1,1].*30,'k--');end
   clear xlim ylim ypos
+    grid off
 
   
   %hack to disable ticks on right
@@ -269,6 +273,7 @@ for iVar=1:1:2;
              'YAxisLocation','right',...
              'Color','none', ...
              'tickdir','out');
+
   axis([Settings.TimeRange+[-3.2,0], h2p(Settings.YRanges(iVar,[2,1]))])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
   set(gca,'xtick',datenum(2021,1,5+(-100:10:100)), ...
           'xticklabel',-100:10:100)  

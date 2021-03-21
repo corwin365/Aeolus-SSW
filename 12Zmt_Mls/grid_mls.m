@@ -2,9 +2,9 @@ clearvars
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%grid u, v and T for assessing various atmospheric parameters
+%grid MLS zonal mean temperature to study stratopause height
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/13
+%Corwin Wright, c.wright@bath.ac.uk, 2021/03/15
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -12,21 +12,21 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%general
-Settings.OutFile          = 'zm_data_aeolus.mat';
+
 
 %regionalisation
-Settings.LatRange         = [55,65];
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
-Settings.Grid.HeightScale = 2:1:24; %km
+Settings.OutFile          = 'zmt_mls.mat';
+Settings.Grid.LatScale    = 0:2:90;
+Settings.Grid.TimeScale   = datenum(2020,12,20):1:datenum(2021,2,28);
+Settings.Grid.HeightScale = [10:4:50,54:6:120]; %km
 
 %list of datasets
-Settings.DataSets         = {'Aeolus'};
+Settings.DataSets         = {'Mls'};
 
-%Aeolus-specific settings
-Settings.Aeolus.DataDir   = [LocalDataDir,'/Aeolus/NC_FullQC/'];
-Settings.Aeolus.InVars    = {'Zonal_wind_projection','Meridional_wind_projection'};
-Settings.Aeolus.OutVars   = {'U','V'}; 
+%MLS-specific settings
+Settings.Mls.DataDir      = [LocalDataDir,'/MLS/'];
+Settings.Mls.InVars       = {'T'};
+Settings.Mls.OutVars      = {'T'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% create storage grids
@@ -44,11 +44,11 @@ for iDataSet=1:1:numel(Settings.DataSets)
   end
 end; clear iDataSet iVar VarList
 
-Results.Data = NaN(numel(Results.VarList),           ...
+Results.Data = NaN(numel(Settings.Grid.LatScale),    ...
                    numel(Settings.Grid.TimeScale),   ...
                    numel(Settings.Grid.HeightScale));
                  
-Results.Grid = Settings.Grid; %so we can just laod the "results" struct in later scripts
+Results.Grid = Settings.Grid; %so we can just load the "results" struct in later scripts
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% grid data!
@@ -90,22 +90,20 @@ for iDataSet=1:1:numel(Settings.DataSets)
     %grid the data
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
-
     VarList = Settings.(Settings.DataSets{iDataSet}).OutVars;
     for iVar=1:1:numel(VarList)
       
       %load variable
       if ~isfield(Data,VarList{iVar});continue; end
       Var = Data.(VarList{iVar});
+      if numel(Var) == 0; continue; end
       
       %bin variable
-      InRange = inrange(Data.Lat,Settings.LatRange);
-      zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale);
+      [xi,yi] = meshgrid(Settings.Grid.LatScale,Settings.Grid.HeightScale);
+      zz = bin2matN(2,Data.Lat,Data.Alt,Var,xi,yi,'@nanmean');
       
       %store it
-      ThisVar = find(contains(Results.InstList,Settings.DataSets{iDataSet}) ...
-                   & contains( Results.VarList,VarList{iVar}));
-      Results.Data(ThisVar,iDay,:,:,:) = zz;
+      Results.Data(:,iDay,:) = squeeze(zz)';
       
       %and we're done
     end; clear iVar VarList zz Var ThisVar Data InRange
