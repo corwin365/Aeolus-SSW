@@ -17,10 +17,10 @@ Data used were obtained from (ERA5) the Copernicus Climate Data Store (Aeolus) t
 - LocalDataDir/Aeolus/NC_FullQC/     
    then: same name as original ESA files, with .nc suffix
    
-- LocalDataDir/ERA5/YYYY/ 
+- LocalDataDir/ERA5/YYYY/      
    then: era5t_YYYYdDDD.nc
    
-- LocalDataDir/MLS/T
+- LocalDataDir/MLS/T     
    then: original file name from NASA DISC
    
 where LocalDataDir is specified in the function "functions/LocalDataDir", YYYY is the four-digit year, and DDD is the three-digit day-of-year.
