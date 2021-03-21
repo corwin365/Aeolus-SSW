@@ -10,16 +10,24 @@ The code is presented as-is at time of submission, and has not been specifically
 
 Finally, for all figures manual modification to the layout, including adding contextual lines and rearranging panels into figures, was carried out in image-editing software. So: the above files will not produce final versions as seen in the paper - although usually it will be very close.
 
-
-
-## Running Order
-
-#### Data Sources
+### Data Sources
 
 Data used were obtained from (ERA5) the Copernicus Climate Data Store (Aeolus) the ESA website and (MLS) NASA's DISC, all in standard netCDF formats as of MArch 2021. 
 
-#### Data Generation
+
+### Data Generation
 
 1. Run the Python scripts in 01AeolusConversion to convert the Aeolus data from their original ESA DBL format to a slimmed-down netCDF format
 
-2. 
+2. Run:
+ - 02HeightTimeSeries/grid_aeolus.m
+ - 02HeightTimeSeries/grid_era5.m
+ - 02HeightTimeSeries/grid_mls.m
+ 
+ The MLS routine will need to be run twice, once with a 55-65 degree range and ocne with a 60-90N range. This can be done by commenting in and out the relevant lines in the "Settings" section at the top of the routine.
+ 
+3. Run:
+ - 03Context/grid_data_timeseries_mls.m
+ - 03Context/grid_data_timeseries_era5.m
+ 
+4
