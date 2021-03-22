@@ -16,7 +16,7 @@ Finally, for all figures manual modifications to the layout, including adding co
 
 ### Data Sources
 
-Data used were obtained from (ERA5) the Copernicus Climate Data Store (Aeolus) the ESA website and (MLS) NASA's DISC, all in standard netCDF formats as of MArch 2021. These were put in the following directories with the following naming conventions:
+Data used were obtained from (ERA5) the Copernicus Climate Data Store (Aeolus) the ESA website and (MLS) NASA's DISC, all in standard netCDF formats as of March 2021. These were put in the following directories with the following naming conventions:
 
 - LocalDataDir/Aeolus/DBL/     
    then: same name as original ESA files.
@@ -25,7 +25,7 @@ Data used were obtained from (ERA5) the Copernicus Climate Data Store (Aeolus) t
 - LocalDataDir/ERA5/YYYY/      
    then: era5t_YYYYdDDD.nc
    
-- LocalDataDir/MLS/T     
+- LocalDataDir/MLS/T [for T]   and   LocalDataDir/MLS/GPH  [for GPH]
    then: original file name from NASA DISC
    
 where LocalDataDir is specified in the function "functions/LocalDataDir", YYYY is the four-digit year, and DDD is the three-digit day-of-year.
