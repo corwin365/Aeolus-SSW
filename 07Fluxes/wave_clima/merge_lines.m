@@ -11,7 +11,7 @@ clearvars -except SSWDates
 
 %load data and append to a single array
 for iSSW = 1:1:numel(SSWDates)
-  
+  iSSW
   %load file
   Data = load(['fluxes_',num2str(SSWDates(iSSW)),'.mat']);
   

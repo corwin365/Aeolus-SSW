@@ -18,7 +18,7 @@ Settings.OutFile          = ['gridded_data_',num2str(CENTREDAY),'.mat'];
 %common gridding settings
 Settings.Grid.LatScale    = -90:10:90;
 Settings.Grid.LonScale    = -180:20:180;
-Settings.Grid.TimeScale   = (-100:1:50)+CENTREDAY;
+Settings.Grid.TimeScale   = (-120:1:120)+CENTREDAY;
 Settings.Grid.HeightScale = 0:2:26; %km
 
 %list of datasets
@@ -49,8 +49,8 @@ end; clear iDataSet iVar VarList
 Results.Data = NaN(numel(Results.VarList),           ...
                    numel(Settings.Grid.TimeScale),   ...
                    numel(Settings.Grid.HeightScale), ...
-                   numel(Settings.Grid.LonScale),    ...
-                   numel(Settings.Grid.LatScale));
+                   numel(Settings.Grid.LatScale),    ...
+                   numel(Settings.Grid.LonScale));
                  
 Results.Grid = Settings.Grid; %so we can just laod the "results" struct in later scripts
 

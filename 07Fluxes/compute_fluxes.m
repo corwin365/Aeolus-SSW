@@ -18,8 +18,8 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Settings.InFile  = 'gridded_data_b.mat';
-Settings.OutFile = 'fluxes_b.mat';
+Settings.InFile  = 'gridded_data_c.mat';
+Settings.OutFile = 'fluxes_c.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% load data
@@ -29,11 +29,12 @@ Data = load(Settings.InFile,'Results'); Data = Data.Results;
 
 
 
+% % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % % %% remove outliers, then fill NaNs in each map including those we removed
+% % % %. Not ideal, but we have no choice if we're going
+% % % %to take the zonal mean
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% remove outliers, then fill NaNs in each map including those we removed
-%. Not ideal, but we have no choice if we're going
-%to take the zonal mean
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 for iDataSet = 1:1:size(Data,1)
   for iDay = 1:1:size(Data,2)
@@ -51,8 +52,6 @@ for iDataSet = 1:1:size(Data,1)
   end
 end
 clear iDataSet iDay iLevel
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% compute zonal means, and hence find perturbation terms
@@ -76,7 +75,7 @@ ReA.Vp = squeeze(Perturbations(find(contains(Data.InstList,  'Era5') & contains(
 HeatFlux.Obs = Obs.Tp .* Obs.Vp;
 HeatFlux.ReA = ReA.Tp .* ReA.Vp;
 HeatFlux.Hyb = Obs.Tp .* ReA.Vp;
-HeatFlux.NoV = Obs.Tp .* ones(size(ReA.Vp)).*nanmean(ReA.Vp);
+% HeatFlux.NoV = Obs.Tp .* ones(size(ReA.Vp)).*nanmean(ReA.Vp);
 
 clear ReA Obs
 
@@ -95,7 +94,7 @@ ReA.Vp = squeeze(Perturbations(find(contains(Data.InstList,  'Era5') & contains(
 MomFlux.Obs  = Obs.Up .* Obs.Vp;
 MomFlux.ReA  = ReA.Up .* ReA.Vp;
 MomFlux.Hyb  = Obs.Up .* ReA.Vp;
-MomFlux.NoV = Obs.Up .* ones(size(ReA.Vp)).*nanmean(ReA.Vp);
+% MomFlux.NoV = Obs.Up .* ones(size(ReA.Vp)).*nanmean(ReA.Vp);
 clear ReA Obs
 
 clear Perturbations

@@ -10,10 +10,10 @@ SSWDates = [datenum(2006,1,21), ...
             datenum(2018,2,12), ...
             datenum(2019,1,02)];
           
-for iSSW=1:1:numel(SSWDates)
-  CENTREDAY = SSWDates(iSSW);
-  grid_datasets;
-  compute_fluxes;
-end
+% for iSSW=1:1:numel(SSWDates)
+%   CENTREDAY = SSWDates(iSSW);
+%   grid_datasets;
+%   compute_fluxes;
+% end
 
 merge_lines

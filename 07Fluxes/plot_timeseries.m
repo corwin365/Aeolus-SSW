@@ -9,7 +9,10 @@ clearvars
 %
 %
 %the plotting code here has been through many cycles of modification and is
-%hard to read - sorry about this, it works but it's just a bit messy
+%hard to read - sorry about this, it works but it's just a bit messy. I was
+%worried about the results, so plot_timeseries_v2.m implements a much
+%simpler version of the code in this routine cleanly to sanity check the
+%data - output looks identical.
 %
 %Corwin Wright, c.wright@bath.ac.uk, 2021/01/13
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,7 +41,7 @@ Settings.SmoothDays = 3;
 %normalise?
 Settings.Normalise = 0;
 
-%scale up obs? (don't use this and normalise)
+%scale up obs? (don't use this and normalise at the same time)
 Settings.ScaleFactor = 10; %set to one to deactivate
 
 %colours
@@ -138,7 +141,7 @@ for iLevel = 1:1:numel(Settings.Levels)
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
   
   Clima = load('wave_clima/merged_ssw_clima.mat');
-  
+
   %shift times
   t = Clima.Store.Grid.TimeScale;
   for iSSW=1:1:numel(Clima.Store.SSWs)
@@ -153,15 +156,17 @@ for iLevel = 1:1:numel(Settings.Levels)
   
   a = Clima.Store.HeatFlux.ReA;
   a = a(:,  zidx,:,:,:,:);
-  a = a(:,:,lonidx,:,:,:);
-  a = a(:,:,:,latidx,:,:);
+  a = a(:,:,latidx,:,:,:);
+  a = a(:,:,:,lonidx,:,:);
   a = squeeze(nanmean(a,[2:4]));
   Clima.Store.HeatFlux.ReA = a;
   
+
+  
   a = Clima.Store.MomFlux.ReA;
   a = a(:,  zidx,:,:,:,:);
-  a = a(:,:,lonidx,:,:,:);
-  a = a(:,:,:,latidx,:,:);
+  a = a(:,:,latidx,:,:,:);
+  a = a(:,:,:,lonidx,:,:);
   a = squeeze(nanmean(a,[2:4]));
   Clima.Store.MomFlux.ReA = a; 
   clear a zidx lonidx latidx
@@ -200,10 +205,10 @@ for iLevel = 1:1:numel(Settings.Levels)
   tp = [t(:,1);t(end:-1:1,1)];
   patch(tp,[prc(:,1);prc(end:-1:1,4)],[1,1,1].*0.8,'edgecolor','none')
   plot(t(:,1),prc(:,5),'k:')
-%   patch(tp,[prc(:,2);prc(end:-1:1,3)],[1,1,1].*0.8,'edgecolor','none')  
-%   for iSSW=1:1:numel(Clima.Store.SSWs)
-%     plot(t(:,iSSW),Clima.Store.HeatFlux.ReA(:,iSSW),'color',[1,1,1].*0.6,'linewi',0.5)
-%   end
+  patch(tp,[prc(:,2);prc(end:-1:1,3)],[1,1,1].*0.8,'edgecolor','none')  
+% %   for iSSW=1:1:numel(Clima.Store.SSWs)
+% %     plot(t(:,iSSW),Clima.Store.HeatFlux.ReA(:,iSSW),'color',[1,1,1].*0.6,'linewi',0.5)
+% %   end
   
   %plot data
   plot(Data.Grid.TimeScale,HeatFlux.ReA,'-','linewi',2,'color',Colours.ReA)
@@ -248,6 +253,8 @@ for iLevel = 1:1:numel(Settings.Levels)
     
   end
   
+
+  
   drawnow
   
   
@@ -268,10 +275,10 @@ for iLevel = 1:1:numel(Settings.Levels)
   tp = [t(:,1);t(end:-1:1,1)];
   patch(tp,[prc(:,1);prc(end:-1:1,4)],[1,1,1].*0.8,'edgecolor','none')
   plot(t(:,1),prc(:,5),'k:')
-%   patch(tp,[prc(:,2);prc(end:-1:1,3)],[1,1,1].*0.8,'edgecolor','none')    
-%   for iSSW=1:1:numel(Clima.Store.SSWs)
-%     plot(t(:,iSSW),Clima.Store.MomFlux.ReA(:,iSSW),'color',[1,1,1].*0.6,'linewi',0.5)
-%   end  
+  patch(tp,[prc(:,2);prc(end:-1:1,3)],[1,1,1].*0.8,'edgecolor','none')    
+% %   for iSSW=1:1:numel(Clima.Store.SSWs)
+% %     plot(t(:,iSSW),Clima.Store.MomFlux.ReA(:,iSSW),'color',[1,1,1].*0.6,'linewi',0.5)
+% %   end  
   
   %plot real data
   plot(Data.Grid.TimeScale,MomFlux.ReA,'-','linewi',2,'color',Colours.ReA)
