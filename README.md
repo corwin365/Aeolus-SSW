@@ -60,7 +60,7 @@ The routines were produced organically over a period of several months and bits 
  - 10WindComparison/01MlsGeostrophicWind/mls_geostrophic_wind.m
  - 12Zmt_Mls/grid_mls.m
 
-### Data Generation
+### Figure Plotting
 
 Phew, that took a bit of typing! OK, you can now make each figure individually:
 
