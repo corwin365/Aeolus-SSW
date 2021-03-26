@@ -32,7 +32,7 @@ Settings.PlotRange = datenum(2021,1,[-91,60]);
 
 %region to average over
 Settings.LonRange = [-180,180];
-Settings.LatRange = [55,75];
+Settings.LatRange = [45,75];
 Settings.Levels   = p2h([50,100,150]);
 
 %time series smoothing

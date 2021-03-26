@@ -29,7 +29,7 @@ Settings.Files.ThisYear = 'fluxes_c.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.LonRange   = [-180,180];
-Settings.LatRange   = [55,75];
+Settings.LatRange   = [45,75];
 Settings.Levels     = p2h([50,100,150]);
 Settings.TimeRange  = datenum(2021,1,[-15,15]);
 Settings.CentreDate = datenum(2021,1,5);
