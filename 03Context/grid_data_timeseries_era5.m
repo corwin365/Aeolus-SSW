@@ -13,7 +13,7 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.DataDir     = [LocalDataDir,'/ERA5/'];
-Settings.LatRange    = [58,62];
+Settings.LatRange    = [60,65];
 Settings.TimeScale   = [];
 for iYear=2004:1:2020;
   Settings.TimeScale = [Settings.TimeScale, ...

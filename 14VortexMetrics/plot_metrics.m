@@ -24,7 +24,7 @@ subplot(1,1,1)
 %%%%%%%%%%%%%
 Data = load('richard/NDJF_2021_aspect_10hPa.mat');
 Data.t = datenum(2020,11,1):1:datenum(2021,2,28);
-stop
+
 %plot data - aspect ratio
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -42,7 +42,7 @@ ylabel('Aspect ratio')
 datetick('x','dd/mmm','keeplimits')
 axis([minmax(Data.t),1,5])
 set(gca,'tickdir','out','xaxislocation','top')
-set(gca,'xtick',datenum(2021,1,-80:20:80)+5,'xticklabel',datestr(datenum(2021,1,-80:20:80)+5))
+set(gca,'xtick',datenum(2021,1,-80:20:80)+5,'xticklabel',datestr(datenum(2021,1,-80:20:80)+5),'xminortick','on' )
 grid off
 
 
@@ -94,7 +94,7 @@ datetick('x','dd/mmm','keeplimits')
 grid off
 axis([minmax(Data.t),35,90])
 set(gca,'tickdir','out')
-set(gca,'xtick',datenum(2021,1,-80:20:80)+5,'xticklabel',(-80:20:80))
+set(gca,'xtick',datenum(2021,1,-80:20:80)+5,'xticklabel',(-80:20:80),'xminortick','on' )
 
 
 

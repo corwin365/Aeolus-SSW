@@ -13,8 +13,8 @@ clearvars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Settings.LatRange   = [55,65];
-Settings.Heights    = [22,15];
-Settings.DataSets   = {'Aeolus','MLS','OpAl','ERA5'}; %first dataset will be used as correlation baseline
+Settings.Heights    = [32,22,15];
+Settings.DataSets   = {'Aeolus','MLS','ERA5'}; %first dataset will be used as correlation baseline
 Settings.Colours    = {[57,106,177]./255,[218,124,48]./255,[204,37,41]./255,[1,.5,.5]};
 Settings.LineStyles = {'-','-','-',':'};
 Settings.TimeScale  = datenum(2020,12,1):1:datenum(2021,3,1);

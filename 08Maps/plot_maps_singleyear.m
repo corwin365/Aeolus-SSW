@@ -18,14 +18,14 @@ Settings.Year          = 2021;
 %plotting
 Settings.Rows = 3;
 
-%how much should we scale up v?
-Settings.VFactor = 10;
+% % %how much should we scale up v?
+% % Settings.VFactor = 10;
 
-%quiver spacing
-Settings.QuivSpace = [5,20]; %degrees lat/lon
+% % %quiver spacing
+% % Settings.QuivSpace = [5,20]; %degrees lat/lon
 
-%quiver scaling (how big the arrows are)
-Settings.QuivScale = 1;%.25;
+% % %quiver scaling (how big the arrows are)
+% % Settings.QuivScale = 1;%.25;
 
 %smooth?
 Settings.SmoothSize = [3,3]; %degrees lon/lat
@@ -34,7 +34,7 @@ Settings.SmoothSize = [3,3]; %degrees lon/lat
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Data = load('aeolus_maps.mat');
+Data = load('aeolus_maps2.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % split into winters
@@ -131,8 +131,8 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   V = squeeze(nanmean(V(idx,:,:,zidx),1));  
   clear zidx idx
   
-  %scale up V?
-  V = V.*Settings.VFactor;
+% %   %scale up V?
+% %   V = V.*Settings.VFactor;
   
   
   %duplicate endpoint, for plotting round the globe
@@ -140,7 +140,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 
 
   %overinterpolate data to one-degree grid
-  xold = Data.Settings.LonScale; xnew = -20:1:360;
+  xold = Data.Settings.LonScale; xnew = -200:1:180;
   yold = Data.Settings.LatScale; ynew = -82:1:82;
   [xold,yold] = meshgrid(xold,yold); [xnew,ynew] = meshgrid(xnew,ynew);
   U = interp2(xold,yold,U',xnew,ynew);   V = interp2(xold,yold,V',xnew,ynew);
@@ -174,17 +174,17 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   
   
   
-  %add quiver of wind vectors
-  xnewQ = xnew(1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
-  ynewQ = ynew(1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
-  UQ    = U(   1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
-  VQ    = V(   1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
-  
-  %remove high latitudes (u and v get very bad)
-  ynewQ(ynewQ > 75) = NaN;
-  
-  m_quiver(xnewQ,ynewQ,UQ,VQ,'color','w','linewi',1, ...
-           'autoscale','on','autoscalefactor',Settings.QuivScale); 
+% % % % %   %add quiver of wind vectors
+% % % % %   xnewQ = xnew(1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
+% % % % %   ynewQ = ynew(1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
+% % % % %   UQ    = U(   1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
+% % % % %   VQ    = V(   1:Settings.QuivSpace(1):end,1:Settings.QuivSpace(2):end);
+% % % % %   
+% % % % %   %remove high latitudes (u and v get very bad)
+% % % % %   ynewQ(ynewQ > 75) = NaN;
+% % % % %   
+% % % % %   m_quiver(xnewQ,ynewQ,UQ,VQ,'color','w','linewi',1, ...
+% % % % %            'autoscale','on','autoscalefactor',Settings.QuivScale); 
   
 % %   %add some line contours
 % %   [c,h] = m_contour(xnew,ynew,U,[-60:10:-10,20:10:60],'edgecolor','k');
@@ -209,7 +209,7 @@ for iDay=1:1:numel(Settings.DaysToPlot)
   Colours = flipud(cbrewer('div','RdBu',31)); Colours(14:17,:) = 1; %this is deliberately asymmetric, as the negatives are double
 %   Colours = flipud(cbrewer('div','RdYlBu',31)); 
   colormap(Colours)
-  caxis([-1,1].*30)
+  caxis([-1,1].*40)
 
   drawnow
   
@@ -219,12 +219,12 @@ for iDay=1:1:numel(Settings.DaysToPlot)
 end
 
 
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % %% colourbar
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % 
-% % drawnow
-% % cb1 = colorbar('southoutside','position',[0.06 0.05 0.15 0.02]);
-% % cb1.Label.String = ['U [ms^{-1}]'];
-% % ticks = [-30,-20,-10,0,10,20,30]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
-% % set(cb1,'xtick',ticks,'xticklabel',labels);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% colourbar
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawnow
+cb1 = colorbar('southoutside','position',[0.06 0.05 0.15 0.02]);
+cb1.Label.String = ['U [ms^{-1}]'];
+ticks = [-40,-30,-20,-10,0,10,20,30,40]; labels = ticks; labels(labels < 0) = labels(labels < 0)./2;
+set(cb1,'xtick',ticks,'xticklabel',labels);

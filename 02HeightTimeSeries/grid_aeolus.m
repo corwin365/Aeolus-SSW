@@ -16,16 +16,16 @@ clearvars
 Settings.OutFile          = 'zm_data_aeolus.mat';
 
 %regionalisation
-Settings.LatRange         = [55,65];
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
-Settings.Grid.HeightScale = 2:1:24; %km
+Settings.LatRange         = [60,65];
+Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,3,10);
+Settings.Grid.HeightScale = 2:2:24; %km
 
 %list of datasets
 Settings.DataSets         = {'Aeolus'};
 
 %Aeolus-specific settings
-Settings.Aeolus.DataDir   = [LocalDataDir,'/Aeolus/NC_FullQC/'];
-Settings.Aeolus.InVars    = {'Zonal_wind_projection','Meridional_wind_projection'};
+Settings.Aeolus.DataDir   = [LocalDataDir,'/Aeolus/daily_gridded_uv_1day/'];
+Settings.Aeolus.InVars    = {'u','v'};
 Settings.Aeolus.OutVars   = {'U','V'}; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,6 +83,7 @@ for iDataSet=1:1:numel(Settings.DataSets)
                                        Settings.Era5.OutVars);
       otherwise; disp('Dataset not in valid list. Stopping'); stop; 
     end
+
     
     if numel(Data.Lat) == 0; continue; end %no data
     
@@ -100,7 +101,7 @@ for iDataSet=1:1:numel(Settings.DataSets)
       
       %bin variable
       InRange = inrange(Data.Lat,Settings.LatRange);
-      zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale);
+      zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale,'@nanmean');
       
       %store it
       ThisVar = find(contains(Results.InstList,Settings.DataSets{iDataSet}) ...

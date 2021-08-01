@@ -29,8 +29,7 @@ Data = struct();
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 for iRegion=1:1:numel(Settings.Regions)
-  
-  Data.Snow.( Settings.Regions{iRegion}) = rCDF(['data/DJF_snow_',Settings.Regions{iRegion},'_2021.nc']);
+  Data.Snow.( Settings.Regions{iRegion}) = rCDF(['data/DJF_snow_anoms_',Settings.Regions{iRegion},'_2021.nc']);
   Data.TwomT.(Settings.Regions{iRegion}) = rCDF(['data/region_',Settings.Regions{iRegion},'_2mT.nc']);
 
 end; clear iRegion
@@ -96,7 +95,7 @@ ylabel('Altitude [km]')
 box on; grid on
 set(gca,'xaxislocation','top','tickdir','out')
 set(gca,'xtick',datenum(2021,1,(-20:20:40)+5),'xticklabel',datestr(datenum(2021,1,(-20:20:40)+5),'dd/mmm'))
-set(gca,'fontsize',12)
+set(gca,'fontsize',12,'xminortick','on','yminortick','on')
 
 %add second time axis
 yyaxis right;
@@ -113,7 +112,7 @@ set(gca,'xtick',datenum(2021,1,(-20:20:40)+5),'xticklabel',(-20:20:40));
 plevs = reverse([1, 3, 10, 30, 100, 300, 1000]); 
 set(gca,'ytick',p2h(plevs),'yticklabel',plevs,'tickdir','both');
 ylabel('Pressure [hPa]')
-set(gca,'fontsize',12)
+set(gca,'fontsize',12,'xminortick','on','yminortick','on')
 text(datenum(2021,1,-26)-5,45,'(a)','fontsize',14,'fontweight','bold')
 
 clear p v z plevs
@@ -139,6 +138,9 @@ for iRegion=1:1:numel(Settings.Regions)
   ylim(yl);
   hold on; box on; grid off;
   
+  %plot zero line
+  plot(minmax(t),[0,0],'k:')
+  
   %plot 2m T time series
   plot(t,squeeze(Data.TwomT.(Settings.Regions{iRegion}).t2m), ...
        'color',[255,51,51]./255,'linewi',2)
@@ -159,7 +161,7 @@ for iRegion=1:1:numel(Settings.Regions)
   text(datenum(2021,1,-25)-5,min(yl)+0.84.*range(yl),Settings.RegNames{iRegion},'fontsize',11)
   
   %tidy up
-  set(gca,'tickdir','out')
+  set(gca,'tickdir','out','xminortick','on','yminortick','on')
   ylabel('\Delta T [K]')
   set(gca,'fontsize',12)
   
@@ -186,14 +188,14 @@ for iRegion=1:1:numel(Settings.Regions)
   %set axes
   hold on
   xlim(minmax(t))
-  yl = [0,1.05];
+  yl = [-3,3];
   ylim(yl);
   hold on; box on; grid off;   set(gca,'tickdir','in')     
-  ylabel('Snow Cover')  
+  ylabel('\Delta Snow')  
            
            
   %plot snow time series
-  plot(t,squeeze(Data.Snow.(Settings.Regions{iRegion}).snow_cover_extent), ...
+  plot(t,squeeze(Data.Snow.(Settings.Regions{iRegion}).sf), ...
        'color',[51,153,255]./255,'linewi',2)  
   
      

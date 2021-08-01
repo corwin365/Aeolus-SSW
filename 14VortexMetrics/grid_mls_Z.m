@@ -1,34 +1,26 @@
 clearvars
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%grid u, v and T for assessing various atmospheric parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%prep and grid MLS GPH
 %
-%Corwin Wright, c.wright@bath.ac.uk, 2021/01/13
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Corwin Wright, c.wright@bath.ac.uk, 2021/07/25
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% settings
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-%regionalisation
-Settings.OutFile          = 'zm_data_mls_6082.mat';
-Settings.LatRange         = [60,82];
-% Settings.OutFile          = 'zm_data_mls_5565.mat'; 
-% Settings.LatRange         = [60,65];
-Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,2,28);
-Settings.Grid.HeightScale = [10:4:50,54:6:120]; %km
+Settings.DataDir          = [LocalDataDir,'/MLS/GPH'];
+Settings.Grid.TimeScale   = datenum(2020,10,1):1:datenum(2021,3,31);
+Settings.Grid.Lat         = 0:4:90;
+Settings.Grid.Lon         = -180:20:180;
+Settings.Grid.HeightScale = [10:4:50,54:6:100]; %km
 
 %list of datasets
 Settings.DataSets         = {'Mls'};
 
 %MLS-specific settings
 Settings.Mls.DataDir      = [LocalDataDir,'/MLS/'];
-Settings.Mls.InVars       = {'T','O3','CO','U','V'};
-Settings.Mls.OutVars      = {'T','O3','CO','U','V'};
+Settings.Mls.InVars       = {'GPH'};
+Settings.Mls.OutVars      = {'Z'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% create storage grids
@@ -48,7 +40,9 @@ end; clear iDataSet iVar VarList
 
 Results.Data = NaN(numel(Results.VarList),           ...
                    numel(Settings.Grid.TimeScale),   ...
-                   numel(Settings.Grid.HeightScale));
+                   numel(Settings.Grid.HeightScale), ...
+                   numel(Settings.Grid.Lat),         ...
+                   numel(Settings.Grid.Lon));
                  
 Results.Grid = Settings.Grid; %so we can just load the "results" struct in later scripts
 
@@ -71,18 +65,10 @@ for iDataSet=1:1:numel(Settings.DataSets)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     switch Settings.DataSets{iDataSet}
-      case 'Aeolus'; Data = get_aeolus(Settings.Grid.TimeScale(iDay), ...
-                                       Settings.Aeolus.DataDir,       ...
-                                       Settings.Aeolus.InVars,        ...
-                                       Settings.Aeolus.OutVars);
       case 'Mls';    Data = get_mls(   Settings.Grid.TimeScale(iDay), ...
                                        Settings.Mls.DataDir,          ...
                                        Settings.Mls.InVars,           ...
                                        Settings.Mls.OutVars);
-      case 'Era5';   Data = get_era5(  Settings.Grid.TimeScale(iDay), ...
-                                       Settings.Era5.DataDir,         ...
-                                       Settings.Era5.InVars,          ...
-                                       Settings.Era5.OutVars);
       otherwise; disp('Dataset not in valid list. Stopping'); stop; 
     end
     
@@ -99,15 +85,14 @@ for iDataSet=1:1:numel(Settings.DataSets)
       if ~isfield(Data,VarList{iVar});continue; end
       Var = Data.(VarList{iVar});
       if numel(Var) == 0; continue; end
-      
-      %bin variable
-      InRange = inrange(Data.Lat,Settings.LatRange);
-      zz = bin2matN(1,Data.Alt(InRange),Var(InRange),Settings.Grid.HeightScale,'@nanmean');
 
+      %bin variable
+      [a,b,c] = meshgrid(Settings.Grid.HeightScale,Settings.Grid.Lat,Settings.Grid.Lon);
+      zz = bin2matN(3,Data.Alt,Data.Lat,Data.Lon,Var,a,b,c,'@nanmean');
       %store it
       ThisVar = find(contains(Results.InstList,Settings.DataSets{iDataSet}) ...
                    & contains( Results.VarList,VarList{iVar}));
-      Results.Data(ThisVar,iDay,:,:,:) = zz;
+      Results.Data(ThisVar,iDay,:,:,:) = permute(squeeze(zz),[2,1,3]);
       
       %and we're done
     end; clear iVar VarList zz Var ThisVar Data InRange
@@ -117,11 +102,10 @@ for iDataSet=1:1:numel(Settings.DataSets)
   end; clear iDay
   textprogressbar('!')
 end; clear iDataSet
-clear xi yi zi
+clear a b c
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% save
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%save
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-save(Settings.OutFile,'Results','Settings')
+save('mls_gph.mat','Results','Settings')

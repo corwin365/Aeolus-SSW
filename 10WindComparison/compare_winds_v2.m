@@ -12,7 +12,7 @@ clearvars
 %% settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Settings.LatRange   = [55,65];
+Settings.LatRange   = [60,65];
 Settings.Heights    = [32,22,15];
 Settings.DataSets   = {'Aeolus','MLS','OpAl','ERA5'}; %first dataset will be used as correlation baseline
 Settings.Colours    = {[57,106,177]./255,[218,124,48]./255,[204,37,41]./255,[1,.5,.5]};
@@ -67,8 +67,6 @@ for iDS=1:1:numel(Settings.DataSets)
   
 end; clear iDS
 
-%bad point in aeolus due to partial day. mention in paper.
-U(1,3,8) = nanmean(U(1,1,[7,9]),3);
 
 %bad point in MLS due to partial day. mention in paper
 U(2,:,54) = nanmean(U(2,:,[53,55]),3);
@@ -112,7 +110,7 @@ for iLevel=1:1:numel(Settings.Heights)
   %labelling
   ylabel('U [ms^{-1}]')
   text(min(get(gca,'xlim'))+0.01.*range(get(gca,'xlim')), ...
-       min(get(gca,'ylim'))+0.07.*range(get(gca,'ylim')), ...
+       min(get(gca,'ylim'))+0.05.*range(get(gca,'ylim')), ...
        ['(',Letters(iLevel),') ',num2str(Settings.Heights(iLevel)),'km, ', ...
        num2str(Settings.LatRange(1)),'-',num2str(Settings.LatRange(2)),'N'], ...
        'fontsize',16,'fontweight','bold')

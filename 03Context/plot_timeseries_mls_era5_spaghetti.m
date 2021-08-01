@@ -15,7 +15,7 @@ Settings.TimeRange   = [-65,85]; %DoY relative to 05/Jan
 
 %files
 Settings.MlsData  = 'mls_data.mat';
-Settings.Era5Data = 'era5_data.mat';
+Settings.Era5Data = 'era5_data_6065.mat';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,7 +117,7 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.03,0.1], 0.1, 0.1);
 k = 0;
 l = 0;
 
-for Level=[20,15,10,5]
+for Level=[32,22,15,5]%[20,15,10,5]
   for iSource=1:1:2;
 
     k=k+1;
@@ -192,14 +192,14 @@ for Level=[20,15,10,5]
     
     %a-axes
     
-    if Level == 20;
+    if Level == 32;
       set(gca,'xaxislocation','top'); xlabel('Days since 5th January');
     elseif iSource ==2 && Level > 5
       set(gca,'xticklabel',{})
     elseif iSource ==1 && Level > 10
       set(gca,'xticklabel',{})      
     else
-      xlabel('Days since 1st January');
+      xlabel('Days since 5th January');
     end
     
     %height level

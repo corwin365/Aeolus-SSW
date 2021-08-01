@@ -45,14 +45,22 @@ Settings.YRanges = [0,30; 0,30];
 % % Settings.Units  = {'Zonal Wind [ms^{-1}]','Zonal Wind [ms^{-1}]'};
 % % Settings.YRanges = [0,90; 0,30];
 
+% % %ALL THE TEMPERATURE
+% % Settings.Vars   = {'T','T'};
+% % Settings.Units  = {'Temperature [K]','Temperature [K]'};
+% % Settings.YRanges = [0,90; 0,30];
+
 %other settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%take anomalies for non-U values, or show absolute values?
+Settings.Anom = 1;
+
 %data source?
-Settings.Source = 2; %1 is obs, 2 is model, 3 is difference (obs-model)
+Settings.Source = 1; %1 is obs, 2 is model, 3 is difference (obs-model)
 
 %time range
-Settings.TimeRange = [datenum(2020,11,1),datenum(2021,3,1)];
+Settings.TimeRange = [datenum(2020,11,1),datenum(2021,2,28)];
 
 %smooth the data?
 Settings.SmoothSize = [1,1;
@@ -64,14 +72,14 @@ Settings.SmoothSize = [1,1;
 %just equivalent to a nice-looking contour() function
 %settings this value to 1 effectively disables it - it just "resamples" the
 %data with the original sampling rate in both dimensions
-Settings.OverSampleFactor = 1;                     
+Settings.OverSampleFactor = 10;                     
                      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %load files
-Data.MlsT   = load('zm_data_mls_6090.mat');
+Data.MlsT   = load('zm_data_mls_6082.mat');
 Data.MlsW   = load('zm_data_mls_5565.mat');
 Data.Aeolus = load('zm_data_aeolus.mat');
 Data.Era5T  = load('zm_data_era5_6090.mat');
@@ -107,10 +115,12 @@ clear Data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Clim = load('zm_data_mls_clim.mat');
-Obs.T.Data = Obs.T.Data - squeeze(Clim.Results.Data(1,:,:));
-Obs.O.Data = Obs.O.Data - squeeze(Clim.Results.Data(2,:,:));
-Obs.C.Data = Obs.C.Data - squeeze(Clim.Results.Data(3,:,:));
-clear Clim
+if Settings.Anom == 1;
+  Obs.T.Data = Obs.T.Data - squeeze(Clim.Results.Data(1,:,:)); 
+  Obs.O.Data = Obs.O.Data - squeeze(Clim.Results.Data(2,:,:));
+  Obs.C.Data = Obs.C.Data - squeeze(Clim.Results.Data(3,:,:));
+end
+  clear Clim
 
 
 Clim = load('zm_data_era5_clim.mat');
@@ -176,7 +186,12 @@ for iVar=1:1:2;
   
   %choose colour range
   InHeightRange = inrange(Var.Grid.HeightScale,Settings.YRanges(iVar,:));
-  ColourRange  = [-1,1].*ceil(max(abs(prctile(flatten(Var.Data(:,InHeightRange)),[1,99]))));
+  if Settings.Anom == 1;
+    ColourRange  = [-1,1].*ceil(max(abs(prctile(flatten(Var.Data(:,InHeightRange)),[1,99]))));
+  else
+    ColourRange = prctile(flatten(Var.Data(:,InHeightRange)),[1,99]);
+  end
+  
   %for long ranges, round off the colourbar to a more sensible multiplier,
   %to make the levels more human-readable
   if     max(ColourRange) > 50; ColourRange = round(ColourRange./20).*20;
@@ -184,6 +199,8 @@ for iVar=1:1:2;
   elseif max(ColourRange) > 10; ColourRange = round(ColourRange./5).*5;
   else;                         ColourRange = [-1,1].*3;
   end
+
+  
 %   ColourRange = [-1,1].*5
   ColourLevels = linspace(ColourRange(1),ColourRange(2),33);
   %choose line levels. extend line levels out beyond the colour levels, for extrema
@@ -240,8 +257,12 @@ for iVar=1:1:2;
   plot([1,1].*datenum(2021,1,5),[-999,999],'k:','linewi',2)%zero time  
   set(gca,'tickdir','out')
   ylabel('Altitude [km]')
-  set(gca,'xtick',datenum(2021,1,-105:10:105), ...
-          'xticklabel',datestr(datenum(2020,1,-105:10:105),'dd/mmm'))
+  set(gca,'xtick',datenum(2021,1,-105:5:105), ...
+          'xticklabel',datestr(datenum(2020,1,-105:5:105),'dd/mmm'), ...
+          'XMinorTick','on','YMinorTick','on')
+  ax = gca; ax.XAxis.FontSize=10;   
+  xtickangle(ax,90)
+        
   if iVar==1;set(gca,'xaxislocation','top'); end
   
   %descriptive label
@@ -256,7 +277,6 @@ for iVar=1:1:2;
   %in the 0-90km plots, add a line representing the top of the 30km plots
   if max(ylim) > 30; plot(xlim,[1,1].*30,'k--');end
   clear xlim ylim ypos
-    grid off
 
   
   %hack to disable ticks on right
@@ -274,14 +294,14 @@ for iVar=1:1:2;
              'Color','none', ...
              'tickdir','out');
 
-  axis([Settings.TimeRange+[-3.2,0], h2p(Settings.YRanges(iVar,[2,1]))])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
-  set(gca,'xtick',datenum(2021,1,5+(-100:10:100)), ...
-          'xticklabel',-100:10:100)  
+  axis([Settings.TimeRange+[-3.15,0], h2p(Settings.YRanges(iVar,[2,1]))])  %I have no idea what multi-day shift is - minor plotting bug in the axis matching from label sizing maybe? - but this makes the top and bottom axes align correctly          
+  set(gca,'xtick',datenum(2021,1,5+(-105:10:105)), ...
+          'xticklabel',-105:10:105)  
   set(gca,'ydir','reverse','yscale','log')  
   if max(Settings.YRanges(:)) > 40; 
     set(gca,'ytick',[0.001,0.01,0.1,1,10,100,1000])
   else
-  set(gca,'ytick',[0.001,0.0032,0.01,0.032,0.1,0.32,1,3.2,10,32,100,320,1000])    
+  set(gca,'ytick',[0.001,0.003,0.01,0.03,0.1,0.3,1,3.,10,30,100,300,1000])    
   end
   
   

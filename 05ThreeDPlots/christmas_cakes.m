@@ -17,7 +17,7 @@ clearvars -except Topo Map
 Settings.InFile = 'aeolus_data_3d_2021.mat';
 % Settings.TimeRange = datenum(2021,1,[-22:3:56]); %plot data will be averaged over this range
 
-Settings.TimeRange = datenum(2021,1,[-19,2,5,20,29,35,50]); %just these days
+Settings.TimeRange = datenum(2021,1,[-49,-19,2,5,20,29,35,50]); %just these days
 
 
 
@@ -25,9 +25,9 @@ Settings.TimeRange = datenum(2021,1,[-19,2,5,20,29,35,50]); %just these days
 Settings.XGrid = -6000:50   :6000;
 Settings.YGrid = -6000:50   :6000;
 Settings.ZGrid =     5: 0.75:22;
-
-%colour limit
-Settings.ColourLimit = 10;
+% 
+% %colour limit
+% Settings.ColourLimit = 10;
 
 %data smoothing - in units of the regridding above
 Settings.SmoothSize = [5,5,1];
@@ -154,7 +154,7 @@ for iDay=1:1:numel(Settings.TimeRange)
   for PM=[-1,1]
     
     %define the surface
-    Levels = PM.*Settings.ColourLimit;
+    Levels = PM.*[15,25];%Settings.ColourLimit;
    
     %then plot the surface. The loop is to make it easier if we want to add
     %more than one level.
@@ -163,7 +163,7 @@ for iDay=1:1:numel(Settings.TimeRange)
       ThePatch = patch(fv);
       if PM == 1;ThePatch.FaceColor = [153,0,0]./255; else ThePatch.FaceColor = [0,128,255]./255; end
       ThePatch.EdgeColor = 'none';
-      ThePatch.FaceAlpha  = 1;
+      ThePatch.FaceAlpha  = 0.3;
       ThePatch.FaceLighting = 'gouraud';
       drawnow
     end
@@ -198,7 +198,7 @@ for iDay=1:1:numel(Settings.TimeRange)
   [a,b,c] = cylinder(1100,360);
   h = max(Settings.ZGrid).*1.1;
   c = c*h; 
-  surf(a,b,c,'facecolor',[1,1,1].*0.5,'edgecolor','none','facealpha',0.5)
+  surf(a,b,c,'facecolor',[1,1,1].*0.9,'edgecolor','none','facealpha',0.5)
   th = 1:1:360;
   patch(1100.*cosd(th),1110.*sind(th),ones(size(th)).*h,[1,1,1].*0.5,'facealpha',0.4,'edgecolor',[1,1,1].*0.3,'linewi',0.5)
   plot3(1100.*cosd(th),1110.*sind(th),ones(size(th)).*.6,'color',[1,1,1].*0.3,'linewi',1)
@@ -207,7 +207,8 @@ for iDay=1:1:numel(Settings.TimeRange)
   %finalise lighting and create title
 
   camlight;camlight
-  view([88,65])
+%   view([88,65])
+  view([121,40])
   if Settings.TimeRange(iDay) < datenum(2021,1,5);
     title([datestr(Settings.TimeRange(iDay)), ...
            ' (d',num2str(Settings.TimeRange(iDay)-datenum(2021,1,5)),')'], ...
