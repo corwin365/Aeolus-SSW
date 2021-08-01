@@ -63,7 +63,7 @@ The routines were produced organically over a period of several months and bits 
  - 12Zmt_Mls/grid_mls.m
  - 14VortexMetrics/grid_mls_Z.m
 
-### Data Generation
+### Figure Plotting
 
 Phew, that took a bit of typing! OK, you can now make each figure individually:
 
