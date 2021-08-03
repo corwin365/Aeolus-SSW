@@ -37,7 +37,7 @@ The routines were produced organically over a period of several months and bits 
 
 1. Run the Python scripts in 01AeolusConversion to convert the Aeolus data from their original ESA DBL format to a slimmed-down netCDF format used throughout this study. This will require some small manual tweaks for your filesystem throughout the programme, that will not carry over to the rest of the Matlab analyses - keep prodding until it works!
 
-1b. Run the Matlab scripts in 01AeolusConversion/PP to further produce the wind estimates, as described in Appendix A.
+1b. Run 01AeolusConversion/PP/PRO_aeolus_daily_gridded_uv.m to further produce the wind estimates, as described in Appendix A.
 
 2. Run:
  - 02HeightTimeSeries/grid_aeolus.m
