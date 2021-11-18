@@ -72,7 +72,7 @@ Settings.SmoothSize = [1,1;
 %just equivalent to a nice-looking contour() function
 %settings this value to 1 effectively disables it - it just "resamples" the
 %data with the original sampling rate in both dimensions
-Settings.OverSampleFactor = 10;                     
+Settings.OverSampleFactor = 1;                     
                      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load data
@@ -260,8 +260,8 @@ for iVar=1:1:2;
   set(gca,'xtick',datenum(2021,1,-105:5:105), ...
           'xticklabel',datestr(datenum(2020,1,-105:5:105),'dd/mmm'), ...
           'XMinorTick','on','YMinorTick','on')
-  ax = gca; ax.XAxis.FontSize=10;   
-  xtickangle(ax,90)
+  ax = gca; ax.XAxis.FontSize=14;   
+  xtickangle(ax,70)
         
   if iVar==1;set(gca,'xaxislocation','top'); end
   

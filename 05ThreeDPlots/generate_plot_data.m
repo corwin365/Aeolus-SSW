@@ -15,8 +15,8 @@ clearvars
 Settings.DataDir     = [LocalDataDir,'/Aeolus/NC_FullQC/'];
 Settings.LatScale    = -90:2:90;
 Settings.LonScale    = 0:15:360;
-Settings.TimeScale   = [datenum(2020,11,1)-5:1:datenum(2021,3,5)];  Settings.OutFile     = 'aeolus_data_3d_2021.mat';
-% Settings.TimeScale   = [datenum(2019,12,1):1:datenum(2020,2,30)];  Settings.OutFile     = 'aeolus_data_3d_1920.mat';
+Settings.TimeScale   = [datenum(2020,11,1)-5:1:datenum(2021,3,5)];  
+Settings.OutFile     = 'aeolus_data_3d_2021.mat';
 Settings.HeightScale = 0:1.5:30;
 
 
@@ -66,7 +66,7 @@ for iDay=1:1:numel(Settings.TimeScale)
 
   %pull out the region of interest
   Data = reduce_struct(Data,inrange(Data.lat,[min(Settings.LatScale),max(Settings.LatScale)]));
-  
+
 
   %grid
   for iVar=1:1:numel(InVars)
@@ -77,7 +77,7 @@ for iDay=1:1:numel(Settings.TimeScale)
     Results.(OutVars{iVar}) = OutField;
  
   end; clear iVar dd hh InField OutField zz
-  
+
   textprogressbar(iDay./numel(Settings.TimeScale).*100);
 end; clear iDay xi yi InVars OutVars zi
 textprogressbar('!')
