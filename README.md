@@ -1,10 +1,9 @@
 # Aeolus January 2021 SSW
 
 
-This is the code underlying Wright et al (2021), a revised manuscript submitted to Weather and Climate Dynamics in August 2021 which uses data from Aeolus, MLS and ERA5 to study the January 2021 Sudden Stratospheric Warming.
+This is the code underlying Wright et al (2021), a paper published in Weather and Climate Dynamics which uses data from Aeolus, MLS and ERA5 to study the January 2021 Sudden Stratospheric Warming. This release is for the code underlying the journal-accepted version, which should be the final iteration of the software.
 
 This release only contains code I have produced as lead-author. This excludes the processing chains used to produce the data for Figures 6, 10, and 11, and the plotting code for Figure 11.
-
 
 Most of the code is written in Matlab. All functions needed to produce the Figures should be included in the directory "functions/", but in the event I've made an error any missing functions are very likely to be available from https://github.com/corwin365/MatlabFunctions. 
 
